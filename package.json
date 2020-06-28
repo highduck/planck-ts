@@ -1,0 +1,19 @@
+{
+  "name": "planck-ts-repo",
+  "version": "0.0.1",
+  "scripts": {
+    "upgrade": "yarn upgrade-interactive",
+    "upgrade:yarn": "yarn set version latest && yarn plugin import @yarnpkg/plugin-interactive-tools && yarn plugin import @yarnpkg/plugin-workspace-tools && yarn",
+    "all:ci": "yarn workspaces foreach --topological-dev -p -v run ci",
+    "clean:ts": "rimraf **/tsconfig*.tsbuildinfo",
+    "ts:watch": "tsc -b -v -w tsconfig.solution.json"
+  },
+  "private": true,
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "^3.9.5"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
