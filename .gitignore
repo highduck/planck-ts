@@ -7,3 +7,4 @@ dist/
 .pnp.*
 .yarn/
 yarn.lock
+.yarnrc.yml

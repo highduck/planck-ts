@@ -22,7 +22,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         
-    - run: yarn policies set-version berry
+    - run: yarn --version
     - run: yarn set version latest
     - run: yarn config set nodeLinker node-modules
     - run: yarn plugin import @yarnpkg/plugin-interactive-tools
