@@ -23,9 +23,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
         
     - run: yarn --version
-    - run: yarn set version latest
+    - run: yarn set version berry
     - run: yarn config set nodeLinker node-modules
-    - run: yarn plugin import @yarnpkg/plugin-interactive-tools
     - run: yarn plugin import @yarnpkg/plugin-workspace-tools
     - run: yarn
     - run: yarn all:ci
