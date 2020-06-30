@@ -105,7 +105,7 @@ export class PrismaticJoint extends Joint {
 
         this.m_localAnchorA = def.anchor ? def.bodyA.getLocalPoint(def.anchor) : def.localAnchorA || Vec2.zero();
         this.m_localAnchorB = def.anchor ? def.bodyB.getLocalPoint(def.anchor) : def.localAnchorB || Vec2.zero();
-        this.m_localXAxisA = def.axis ? def.bodyA.getLocalVector(def.axis) : def.localAxisA || Vec2.neo(1.0, 0.0);
+        this.m_localXAxisA = def.axis ? def.bodyA.getLocalVector(def.axis) : def.localAxisA || new Vec2(1, 0);
         this.m_localXAxisA.normalize();
         this.m_localYAxisA = Vec2.crossSV(1.0, this.m_localXAxisA);
         this.m_referenceAngle = def.referenceAngle !== undefined ? def.referenceAngle : def.bodyB.getAngle() - def.bodyA.getAngle();
@@ -268,7 +268,7 @@ export class PrismaticJoint extends Joint {
     /**
      * Enable/disable the joint limit.
      */
-    enableLimit(flag:boolean) {
+    enableLimit(flag: boolean) {
         if (flag !== this.m_enableLimit) {
             this.m_bodyA.setAwake(true);
             this.m_bodyB.setAwake(true);
@@ -315,7 +315,7 @@ export class PrismaticJoint extends Joint {
     /**
      * Enable/disable the joint motor.
      */
-    enableMotor(flag:boolean) {
+    enableMotor(flag: boolean) {
         this.m_bodyA.setAwake(true);
         this.m_bodyB.setAwake(true);
         this.m_enableMotor = flag;
@@ -324,7 +324,7 @@ export class PrismaticJoint extends Joint {
     /**
      * Set the motor speed, usually in meters per second.
      */
-    setMotorSpeed(speed:number) {
+    setMotorSpeed(speed: number) {
         this.m_bodyA.setAwake(true);
         this.m_bodyB.setAwake(true);
         this.m_motorSpeed = speed;
@@ -333,7 +333,7 @@ export class PrismaticJoint extends Joint {
     /**
      * Set the maximum motor force, usually in N.
      */
-    setMaxMotorForce(force:number) {
+    setMaxMotorForce(force: number) {
         this.m_bodyA.setAwake(true);
         this.m_bodyB.setAwake(true);
         this.m_maxMotorForce = force;
@@ -349,7 +349,7 @@ export class PrismaticJoint extends Joint {
     /**
      * Get the current motor force given the inverse time step, usually in N.
      */
-    getMotorForce(inv_dt:number) {
+    getMotorForce(inv_dt: number) {
         return inv_dt * this.m_motorImpulse;
     }
 
@@ -361,15 +361,15 @@ export class PrismaticJoint extends Joint {
         return this.m_bodyB.getWorldPoint(this.m_localAnchorB);
     }
 
-    getReactionForce(inv_dt:number):Vec2 {
+    getReactionForce(inv_dt: number): Vec2 {
         return Vec2.combine(this.m_impulse.x, this.m_perp, this.m_motorImpulse + this.m_impulse.z, this.m_axis).mul(inv_dt);
     }
 
-    getReactionTorque(inv_dt:number) {
+    getReactionTorque(inv_dt: number) {
         return inv_dt * this.m_impulse.y;
     }
 
-    initVelocityConstraints(step:TimeStep) {
+    initVelocityConstraints(step: TimeStep) {
         this.m_localCenterA = this.m_bodyA.m_sweep.localCenter;
         this.m_localCenterB = this.m_bodyB.m_sweep.localCenter;
         this.m_invMassA = this.m_bodyA.m_invMass;
@@ -387,8 +387,8 @@ export class PrismaticJoint extends Joint {
         const vB = this.m_bodyB.c_velocity.v;
         let wB = this.m_bodyB.c_velocity.w;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         // Compute the effective masses.
         const rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
@@ -558,8 +558,8 @@ export class PrismaticJoint extends Joint {
 
             // f2(1:2) = invK(1:2,1:2) * (-Cdot(1:2) - K(1:2,3) * (f2(3) - f1(3))) +
             // f1(1:2)
-            const b = Vec2.combine(-1, Cdot1, -(this.m_impulse.z - f1.z), Vec2.neo(this.m_K.ez.x, this.m_K.ez.y)); // Vec2
-            const f2r = Vec2.add(this.m_K.solve22(b), Vec2.neo(f1.x, f1.y)); // Vec2
+            const b = Vec2.combine(-1, Cdot1, -(this.m_impulse.z - f1.z), new Vec2(this.m_K.ez.x, this.m_K.ez.y)); // Vec2
+            const f2r = Vec2.add(this.m_K.solve22(b), new Vec2(f1.x, f1.y)); // Vec2
             this.m_impulse.x = f2r.x;
             this.m_impulse.y = f2r.y;
 
@@ -597,14 +597,14 @@ export class PrismaticJoint extends Joint {
         this.m_bodyB.c_velocity.w = wB;
     }
 
-    solvePositionConstraints(step:TimeStep) {
+    solvePositionConstraints(step: TimeStep) {
         const cA = this.m_bodyA.c_position.c;
         let aA = this.m_bodyA.c_position.a;
         const cB = this.m_bodyB.c_position.c;
         let aB = this.m_bodyB.c_position.a;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         const mA = this.m_invMassA;
         const mB = this.m_invMassB;
@@ -691,10 +691,7 @@ export class PrismaticJoint extends Joint {
                 k22 = 1.0;
             }
 
-            const K = Mat22.zero();
-            K.ex.set(k11, k12);
-            K.ey.set(k12, k22);
-
+            const K = new Mat22(k11, k12, k12, k22);
             const impulse1 = K.solve(Vec2.neg(C1)); // Vec2
             impulse.x = impulse1.x;
             impulse.y = impulse1.y;

@@ -144,7 +144,7 @@ export class WeldJoint extends Joint {
     }
 
     getReactionForce(inv_dt: number) {
-        return Vec2.neo(this.m_impulse.x, this.m_impulse.y).mul(inv_dt);
+        return new Vec2(inv_dt * this.m_impulse.x, inv_dt * this.m_impulse.y);
     }
 
     getReactionTorque(inv_dt: number) {
@@ -167,8 +167,8 @@ export class WeldJoint extends Joint {
         const vB = this.m_bodyB.c_velocity.v;
         let wB = this.m_bodyB.c_velocity.w;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         this.m_rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
         this.m_rB = Rot.mulVec2(qB, Vec2.sub(this.m_localAnchorB, this.m_localCenterB));
@@ -237,7 +237,7 @@ export class WeldJoint extends Joint {
             // Scale impulses to support a variable time step.
             this.m_impulse.mul(step.dtRatio);
 
-            const P = Vec2.neo(this.m_impulse.x, this.m_impulse.y);
+            const P = new Vec2(this.m_impulse.x, this.m_impulse.y);
 
             vA.subMul(mA, P);
             wA -= iA * (Vec2.cross(this.m_rA, P) + this.m_impulse.z);
@@ -301,7 +301,7 @@ export class WeldJoint extends Joint {
             const impulse = Vec3.neg(Mat33.mulVec3(this.m_mass, Cdot)); // Vec3
             this.m_impulse.add(impulse);
 
-            const P = Vec2.neo(impulse.x, impulse.y);
+            const P = new Vec2(impulse.x, impulse.y);
 
             vA.subMul(mA, P);
             wA -= iA * (Vec2.cross(this.m_rA, P) + impulse.z);
@@ -322,7 +322,7 @@ export class WeldJoint extends Joint {
         const cB = this.m_bodyB.c_position.c;
         let aB = this.m_bodyB.c_position.a;
 
-        const qA = Rot.neo(aA), qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA), qB = Rot.forAngle(aB);
 
         const mA = this.m_invMassA, mB = this.m_invMassB; // float
         const iA = this.m_invIA, iB = this.m_invIB; // float
@@ -379,7 +379,7 @@ export class WeldJoint extends Joint {
                 impulse.set(impulse2.x, impulse2.y, 0.0);
             }
 
-            const P = Vec2.neo(impulse.x, impulse.y);
+            const P = new Vec2(impulse.x, impulse.y);
 
             cA.subMul(mA, P);
             aA -= iA * (Vec2.cross(rA, P) + impulse.z);

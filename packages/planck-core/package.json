@@ -40,11 +40,24 @@
     }
   ],
   "scripts": {
-    "ci": "run build",
+    "ci": "run build && run test:coverage",
     "build": "tsc -b -f tsconfig.esm.json",
-    "watch": "tsc -b -w -f tsconfig.esm.json"
+    "watch": "tsc -b -w -f tsconfig.esm.json",
+    "clean": "rimraf dist/",
+    "test": "mocha",
+    "test:coverage": "nyc --reporter=text mocha",
+    "test:coverage:html": "nyc --reporter=html mocha"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^14.0.13",
+    "@types/sinon": "^9.0.4",
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1",
+    "nyc": "^15.1.0",
+    "sinon": "^9.0.2",
+    "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
   }
 }

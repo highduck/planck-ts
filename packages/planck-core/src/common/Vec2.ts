@@ -1,34 +1,23 @@
 import {MathUtil} from "./Math";
 
 export class Vec2 {
+
+    static readonly ZERO = new Vec2(0, 0);
+    static readonly ONE = new Vec2(1, 1);
+    static readonly UNIT_X = new Vec2(1, 0);
+    static readonly UNIT_Y = new Vec2(0, 1);
+
     constructor(public x: number,
                 public y: number) {
     }
-
-    // _serialize() {
-    //     return {
-    //         x: this.x,
-    //         y: this.y
-    //     };
-    // }
-    //
-    // static _deserialize(data): Vec2 {
-    //     return new Vec2(data.x, data.y);
-    // }
 
     static zero(): Vec2 {
         // todo: could be static readonly ref
         return new Vec2(0, 0);
     }
 
-    static neo(x: number, y: number): Vec2 {
-        // todo: why?
-        return new Vec2(x, y);
-    }
-
     static clone(v: Vec2): Vec2 {
-        PLANCK_ASSERT && Vec2.assert(v);
-        return Vec2.neo(v.x, v.y);
+        return new Vec2(v.x, v.y);
     }
 
     toString() {
@@ -283,7 +272,7 @@ export class Vec2 {
      */
     static skew(v: Vec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
-        return Vec2.neo(-v.y, v.x);
+        return new Vec2(-v.y, v.x);
     }
 
     /**
@@ -310,13 +299,27 @@ export class Vec2 {
     static crossVS(v: Vec2, w: number): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
         PLANCK_ASSERT && MathUtil.assert(w);
-        return Vec2.neo(w * v.y, -w * v.x);
+        return new Vec2(w * v.y, -w * v.x);
+    }
+
+    static _crossVS(v: Vec2, w: number, out: Vec2) {
+        const x = w * v.x;
+        const y = w * v.y;
+        out.x = y;
+        out.y = -x;
     }
 
     static crossSV(v: number, w: Vec2): Vec2 {
         PLANCK_ASSERT && MathUtil.assert(v);
         PLANCK_ASSERT && Vec2.assert(w);
-        return Vec2.neo(-v * w.y, v * w.x);
+        return new Vec2(-v * w.y, v * w.x);
+    }
+
+    static _crossSV(s: number, v: Vec2, out: Vec2) {
+        const x = s * v.x;
+        const y = s * v.y;
+        out.x = -y;
+        out.y = x;
     }
 
     /**
@@ -325,19 +328,19 @@ export class Vec2 {
     static addCrossSV(a: Vec2, v: number, w: Vec2): Vec2 {
         PLANCK_ASSERT && MathUtil.assert(v);
         PLANCK_ASSERT && Vec2.assert(w);
-        return Vec2.neo(-v * w.y + a.x, v * w.x + a.y);
+        return new Vec2(-v * w.y + a.x, v * w.x + a.y);
     }
 
     static addCrossVS(a: Vec2, v: Vec2, w: number): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
         PLANCK_ASSERT && MathUtil.assert(w);
-        return Vec2.neo(w * v.y + a.x, -w * v.x + a.y);
+        return new Vec2(w * v.y + a.x, -w * v.x + a.y);
     }
 
     static add(v: Vec2, w: Vec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
         PLANCK_ASSERT && Vec2.assert(w);
-        return Vec2.neo(v.x + w.x, v.y + w.y);
+        return new Vec2(v.x + w.x, v.y + w.y);
     }
 
     static combine(a: number, v: Vec2, b: number, w: Vec2) {
@@ -347,13 +350,18 @@ export class Vec2 {
     static sub(v: Vec2, w: Vec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
         PLANCK_ASSERT && Vec2.assert(w);
-        return Vec2.neo(v.x - w.x, v.y - w.y);
+        return new Vec2(v.x - w.x, v.y - w.y);
+    }
+
+    static _sub(a: Vec2, b: Vec2, out: Vec2) {
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
     }
 
     static mul(a: number, b: Vec2): Vec2 {
         PLANCK_ASSERT && MathUtil.assert(a);
         PLANCK_ASSERT && Vec2.assert(b);
-        return Vec2.neo(a * b.x, a * b.y);
+        return new Vec2(a * b.x, a * b.y);
     }
 
     neg(): this {
@@ -364,30 +372,35 @@ export class Vec2 {
 
     static neg(v: Vec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
-        return Vec2.neo(-v.x, -v.y);
+        return new Vec2(-v.x, -v.y);
     }
 
     static abs(v: Vec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
-        return Vec2.neo(Math.abs(v.x), Math.abs(v.y));
+        return new Vec2(Math.abs(v.x), Math.abs(v.y));
     }
 
     static mid(v: Vec2, w: Vec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
         PLANCK_ASSERT && Vec2.assert(w);
-        return Vec2.neo((v.x + w.x) * 0.5, (v.y + w.y) * 0.5);
+        return new Vec2(0.5 * (v.x + w.x), 0.5 * (v.y + w.y));
+    }
+
+    static _mid(a: Vec2, b: Vec2, out: Vec2) {
+        out.x = 0.5 * (a.x + b.x);
+        out.y = 0.5 * (a.y + a.y);
     }
 
     static upper(v: Vec2, w: Vec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
         PLANCK_ASSERT && Vec2.assert(w);
-        return Vec2.neo(Math.max(v.x, w.x), Math.max(v.y, w.y));
+        return new Vec2(Math.max(v.x, w.x), Math.max(v.y, w.y));
     }
 
     static lower(v: Vec2, w: Vec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
         PLANCK_ASSERT && Vec2.assert(w);
-        return Vec2.neo(Math.min(v.x, w.x), Math.min(v.y, w.y));
+        return new Vec2(Math.min(v.x, w.x), Math.min(v.y, w.y));
     }
 
     clamp(max: number): this {
@@ -401,26 +414,13 @@ export class Vec2 {
     }
 
     static clamp(v: Vec2, max: number): Vec2 {
-        v = Vec2.neo(v.x, v.y);
+        v = new Vec2(v.x, v.y);
         v.clamp(max);
         return v;
     }
 
-    /**
-     * @experimental
-     */
-    // static scaleFn(x, y) {
-    //     return function (v) {
-    //         return Vec2.neo(v.x * x, v.y * y);
-    //     };
-    // }
-
-    /**
-     * @experimental
-     */
-    // static translateFn(x, y) {
-    //     return function (v) {
-    //         return Vec2.neo(v.x + x, v.y + y);
-    //     };
-    // }
+    static _combine(a: number, u: Vec2, b: number, v: Vec2, out: Vec2) {
+        out.x = a * u.x + b * v.x;
+        out.y = a * u.y + b * v.y;
+    }
 }

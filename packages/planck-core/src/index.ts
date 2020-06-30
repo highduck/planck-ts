@@ -15,7 +15,7 @@ export {PolygonShape} from './shape/PolygonShape';
 import './shape/CollideCircle';
 import './shape/CollideEdgeCircle';
 import './shape/CollidePolygon';
-import './shape/CollideCirclePolygone';
+import './shape/CollideCirclePolygon';
 import './shape/CollideEdgePolygon';
 
 // exports.Math = require('./common/Math');

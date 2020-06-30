@@ -13,7 +13,7 @@ import {ContactEdge} from "./Contact";
 import {Shape} from "./Shape";
 import {JointEdge} from "./Joint";
 
-const enum BodyType {
+export const enum BodyType {
     STATIC = 0,
     KINEMATIC = 1,
     DYNAMIC = 2
@@ -950,7 +950,6 @@ export class Body {
      *
      * @param fixture The fixture to be removed.
      */
-
     destroyFixture(fixture: Fixture) {
         PLANCK_ASSERT && assert(!this.isWorldLocked());
 
@@ -1039,33 +1038,4 @@ export class Body {
     getLocalVector(worldVector: Vec2): Vec2 {
         return Rot.mulTVec2(this.m_xf.q, worldVector);
     }
-
-
-    // TODO: serialization
-    // _serialize() {
-    //     const fixtures = [];
-    //     for (let f = this.m_fixtureList; f; f = f.m_next) {
-    //         fixtures.push(f);
-    //     }
-    //     return {
-    //         type: this.m_type,
-    //         position: this.m_xf.p,
-    //         angle: this.m_xf.q.getAngle(),
-    //         linearVelocity: this.m_linearVelocity,
-    //         angularVelocity: this.m_angularVelocity,
-    //         fixtures: fixtures,
-    //     };
-    // }
-    //
-    // static _deserialize(data: any, world: World, restore: BodyRestoreFunction<Fixture>) {
-    //     const body = new Body(world, data);
-    //
-    //     for (let i = 0; i < data.fixtures.length; ++i) {
-    //         const fixtureData = data.fixtures[i];
-    //         const fixture = restore(Fixture, fixtureData, body);
-    //         body._addFixture(fixture);
-    //     }
-    //
-    //     return body;
-    // }
 }

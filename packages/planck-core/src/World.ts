@@ -78,7 +78,8 @@ export class World {
     m_t = 0;
     m_stepCount = 0;
 
-    constructor(def: WorldDef) {
+    constructor(def?: WorldDef) {
+        def = def ?? {};
         this.m_allowSleep = def.allowSleep ?? true;
         this.m_gravity = Vec2.clone(def.gravity ?? Vec2.zero());
 
@@ -459,7 +460,7 @@ export class World {
      * @param {BodyDef|Vec2} def Body definition or position.
      * @param {float} angle Body angle if def is position.
      */
-    createBody(def: BodyDef):Body {
+    createBody(def: BodyDef): Body {
         PLANCK_ASSERT && assert(!this.isLocked());
         if (this.isLocked()) {
             throw new Error("world is locked");

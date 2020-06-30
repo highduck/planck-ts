@@ -89,10 +89,10 @@ export class PulleyJoint extends Joint {
         //, bodyB, groundA, groundB, anchorA, anchorB, ratio
         super(def, PulleyJoint.TYPE);
 
-        this.m_groundAnchorA = def.groundA ? def.groundA : def.groundAnchorA || Vec2.neo(-1.0, 1.0);
-        this.m_groundAnchorB = def.groundB ? def.groundB : def.groundAnchorB || Vec2.neo(1.0, 1.0);
-        this.m_localAnchorA = def.anchorA ? def.bodyA.getLocalPoint(def.anchorA) : def.localAnchorA || Vec2.neo(-1.0, 0.0);
-        this.m_localAnchorB = def.anchorB ? def.bodyB.getLocalPoint(def.anchorB) : def.localAnchorB || Vec2.neo(1.0, 0.0);
+        this.m_groundAnchorA = def.groundA ? def.groundA : def.groundAnchorA || new Vec2(-1, 1);
+        this.m_groundAnchorB = def.groundB ? def.groundB : def.groundAnchorB || new Vec2(1, 1);
+        this.m_localAnchorA = def.anchorA ? def.bodyA.getLocalPoint(def.anchorA) : def.localAnchorA || new Vec2(-1, 0);
+        this.m_localAnchorB = def.anchorB ? def.bodyB.getLocalPoint(def.anchorB) : def.localAnchorB || new Vec2(1, 0);
         if (def.lengthA === undefined && (!def.anchorA || !def.groundA)) throw new Error('invalid def');
         if (def.lengthB === undefined && (!def.anchorB || !def.groundB)) throw new Error('invalid def');
         this.m_lengthA = def.lengthA !== undefined ? def.lengthA : Vec2.distance(def.anchorA!, def.groundA!);
@@ -171,7 +171,7 @@ export class PulleyJoint extends Joint {
         return Vec2.distance(p, s);
     }
 
-    shiftOrigin(newOrigin:Vec2) {
+    shiftOrigin(newOrigin: Vec2) {
         this.m_groundAnchorA.sub(newOrigin);
         this.m_groundAnchorB.sub(newOrigin);
     }
@@ -192,7 +192,7 @@ export class PulleyJoint extends Joint {
         return 0.0;
     }
 
-    initVelocityConstraints(step:TimeStep) {
+    initVelocityConstraints(step: TimeStep) {
         this.m_localCenterA = this.m_bodyA.m_sweep.localCenter;
         this.m_localCenterB = this.m_bodyB.m_sweep.localCenter;
         this.m_invMassA = this.m_bodyA.m_invMass;
@@ -210,8 +210,8 @@ export class PulleyJoint extends Joint {
         const vB = this.m_bodyB.c_velocity.v;
         let wB = this.m_bodyB.c_velocity.w;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         this.m_rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
         this.m_rB = Rot.mulVec2(qB, Vec2.sub(this.m_localAnchorB, this.m_localCenterB));
@@ -272,7 +272,7 @@ export class PulleyJoint extends Joint {
         this.m_bodyB.c_velocity.w = wB;
     }
 
-    solveVelocityConstraints(step:TimeStep) {
+    solveVelocityConstraints(step: TimeStep) {
         const vA = this.m_bodyA.c_velocity.v;
         let wA = this.m_bodyA.c_velocity.w;
         const vB = this.m_bodyB.c_velocity.v;
@@ -299,13 +299,13 @@ export class PulleyJoint extends Joint {
         this.m_bodyB.c_velocity.w = wB;
     }
 
-    solvePositionConstraints(step:TimeStep) {
+    solvePositionConstraints(step: TimeStep) {
         const cA = this.m_bodyA.c_position.c;
         let aA = this.m_bodyA.c_position.a;
         const cB = this.m_bodyB.c_position.c;
         let aB = this.m_bodyB.c_position.a;
 
-        const qA = Rot.neo(aA), qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA), qB = Rot.forAngle(aB);
 
         const rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
         const rB = Rot.mulVec2(qB, Vec2.sub(this.m_localAnchorB, this.m_localCenterB));

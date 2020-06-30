@@ -83,13 +83,12 @@ function CollideEdgeCircle(manifold: Manifold,
         manifold.localNormal.setZero();
         manifold.localPoint.copyFrom(P);
         manifold.pointCount = 1;
-        manifold.points[0].localPoint.copyFrom(circleB.m_p);
-
-        // manifold.points[0].id.key = 0;
-        manifold.points[0].id.cf.indexA = 0;
-        manifold.points[0].id.cf.typeA = ContactFeatureType.e_vertex;
-        manifold.points[0].id.cf.indexB = 0;
-        manifold.points[0].id.cf.typeB = ContactFeatureType.e_vertex;
+        const mp0 = manifold.points[0];
+        mp0.localPoint.copyFrom(circleB.m_p);
+        mp0.cf.indexA = 0;
+        mp0.cf.typeA = ContactFeatureType.e_vertex;
+        mp0.cf.indexB = 0;
+        mp0.cf.typeB = ContactFeatureType.e_vertex;
         return;
     }
 
@@ -119,13 +118,12 @@ function CollideEdgeCircle(manifold: Manifold,
         manifold.localNormal.setZero();
         manifold.localPoint.copyFrom(P);
         manifold.pointCount = 1;
-        manifold.points[0].localPoint.copyFrom(circleB.m_p);
-
-        // manifold.points[0].id.key = 0;
-        manifold.points[0].id.cf.indexA = 1;
-        manifold.points[0].id.cf.typeA = ContactFeatureType.e_vertex;
-        manifold.points[0].id.cf.indexB = 0;
-        manifold.points[0].id.cf.typeB = ContactFeatureType.e_vertex;
+        const mp0 = manifold.points[0];
+        mp0.localPoint.copyFrom(circleB.m_p);
+        mp0.cf.indexA = 1;
+        mp0.cf.typeA = ContactFeatureType.e_vertex;
+        mp0.cf.indexB = 0;
+        mp0.cf.typeB = ContactFeatureType.e_vertex;
         return;
     }
 
@@ -139,7 +137,7 @@ function CollideEdgeCircle(manifold: Manifold,
         return;
     }
 
-    const n = Vec2.neo(-e.y, e.x);
+    const n = new Vec2(-e.y, e.x);
     if (Vec2.dot(n, Vec2.sub(Q, A)) < 0.0) {
         n.set(-n.x, -n.y);
     }
@@ -149,11 +147,11 @@ function CollideEdgeCircle(manifold: Manifold,
     manifold.localNormal.copyFrom(n);
     manifold.localPoint.copyFrom(A);
     manifold.pointCount = 1;
-    manifold.points[0].localPoint.copyFrom(circleB.m_p);
 
-    // manifold.points[0].id.key = 0;
-    manifold.points[0].id.cf.indexA = 0;
-    manifold.points[0].id.cf.typeA = ContactFeatureType.e_face;
-    manifold.points[0].id.cf.indexB = 0;
-    manifold.points[0].id.cf.typeB = ContactFeatureType.e_vertex;
+    const mp0 = manifold.points[0];
+    mp0.localPoint.copyFrom(circleB.m_p);
+    mp0.cf.indexA = 0;
+    mp0.cf.typeA = ContactFeatureType.e_face;
+    mp0.cf.indexB = 0;
+    mp0.cf.typeB = ContactFeatureType.e_vertex;
 }

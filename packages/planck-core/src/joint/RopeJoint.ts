@@ -72,8 +72,8 @@ export class RopeJoint extends Joint {
     constructor(def: RopeJointDef) {
         super(def, RopeJoint.TYPE);
 
-        this.m_localAnchorA = def.anchor ? def.bodyA.getLocalPoint(def.anchor) : def.localAnchorA || Vec2.neo(-1.0, 0.0);
-        this.m_localAnchorB = def.anchor ? def.bodyB.getLocalPoint(def.anchor) : def.localAnchorB || Vec2.neo(1.0, 0.0);
+        this.m_localAnchorA = def.anchor ? def.bodyA.getLocalPoint(def.anchor) : def.localAnchorA || new Vec2(-1, 0);
+        this.m_localAnchorB = def.anchor ? def.bodyB.getLocalPoint(def.anchor) : def.localAnchorB || new Vec2(1, 0);
 
         this.m_maxLength = def.maxLength ?? 0;
 
@@ -150,8 +150,8 @@ export class RopeJoint extends Joint {
         const vB = this.m_bodyB.c_velocity.v;
         let wB = this.m_bodyB.c_velocity.w;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         this.m_rA = Rot.mulSub(qA, this.m_localAnchorA, this.m_localCenterA);
         this.m_rB = Rot.mulSub(qB, this.m_localAnchorB, this.m_localCenterB);
@@ -247,8 +247,8 @@ export class RopeJoint extends Joint {
         const cB = this.m_bodyB.c_position.c; // Vec2
         let aB = this.m_bodyB.c_position.a; // float
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         const rA = Rot.mulSub(qA, this.m_localAnchorA, this.m_localCenterA);
         const rB = Rot.mulSub(qB, this.m_localAnchorB, this.m_localCenterB);

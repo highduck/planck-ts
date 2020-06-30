@@ -1,0 +1,4 @@
+src/
+*.tsbuildinfo
+.mocharc.cjs
+tsconfig*.json

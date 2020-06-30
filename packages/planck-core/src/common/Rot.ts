@@ -3,14 +3,16 @@ import {MathUtil} from "./Math";
 
 // TODO merge with Transform
 export class Rot {
+
+    static readonly IDENTITY = new Rot(0, 1);
+
     constructor(public s: number,
                 public c: number) {
     }
 
-    static neo(angle: number): Rot {
-        const r = new Rot(0, 1);
-        r.setAngle(angle);
-        return r;
+    static forAngle(angle: number): Rot {
+        PLANCK_ASSERT && MathUtil.assert(angle);
+        return new Rot(Math.sin(angle), Math.cos(angle));
     }
 
     clone(): Rot {
@@ -23,7 +25,7 @@ export class Rot {
     };
 
     static identity(): Rot {
-        return new Rot(0.0, 1.0);
+        return new Rot(0, 1);
     };
 
     static isValid(o: any) {
@@ -42,8 +44,8 @@ export class Rot {
      * Set to the identity rotation.
      */
     setIdentity() {
-        this.s = 0.0;
-        this.c = 1.0;
+        this.s = 0;
+        this.c = 1;
     }
 
     set(r: Rot) {
@@ -73,14 +75,14 @@ export class Rot {
      * Get the x-axis.
      */
     getXAxis() {
-        return Vec2.neo(this.c, this.s);
+        return new Vec2(this.c, this.s);
     }
 
     /**
      * Get the u-axis.
      */
     getYAxis() {
-        return Vec2.neo(-this.s, this.c);
+        return new Vec2(-this.s, this.c);
     }
 
     /**
@@ -95,10 +97,7 @@ export class Rot {
         // [qs qc] [rs rc] [qs*rc+qc*rs -qs*rs+qc*rc]
         // s = qs * rc + qc * rs
         // c = qc * rc - qs * rs
-        const qr = Rot.identity();
-        qr.s = rot.s * m.c + rot.c * m.s;
-        qr.c = rot.c * m.c - rot.s * m.s;
-        return qr;
+        return new Rot(rot.s * m.c + rot.c * m.s, rot.c * m.c - rot.s * m.s);
     }
 
     /**
@@ -109,13 +108,20 @@ export class Rot {
     static mulVec2(rot: Rot, m: Vec2): Vec2 {
         PLANCK_ASSERT && Rot.assert(rot);
         PLANCK_ASSERT && Vec2.assert(m);
-        return Vec2.neo(rot.c * m.x - rot.s * m.y, rot.s * m.x + rot.c * m.y);
+        return new Vec2(rot.c * m.x - rot.s * m.y, rot.s * m.x + rot.c * m.y);
+    }
+
+    static _mulVec2(rot: Rot, v: Vec2, out: Vec2) {
+        const x = rot.c * v.x - rot.s * v.y;
+        const y = rot.s * v.x + rot.c * v.y;
+        out.x = x;
+        out.y = y;
     }
 
     static mulSub(rot: Rot, v: Vec2, w: Vec2): Vec2 {
         const x = rot.c * (v.x - w.x) - rot.s * (v.y - w.y);
         const y = rot.s * (v.x - w.x) + rot.c * (v.y - w.y);
-        return Vec2.neo(x, y);
+        return new Vec2(x, y);
     }
 
     /**
@@ -129,10 +135,7 @@ export class Rot {
         // [-qs qc] [rs rc] [-qs*rc+qc*rs qs*rs+qc*rc]
         // s = qc * rs - qs * rc
         // c = qc * rc + qs * rs
-        const qr = Rot.identity();
-        qr.s = rot.c * m.s - rot.s * m.c;
-        qr.c = rot.c * m.c + rot.s * m.s;
-        return qr;
+        return new Rot(rot.c * m.s - rot.s * m.c, rot.c * m.c + rot.s * m.s);
     }
 
     /**
@@ -142,7 +145,7 @@ export class Rot {
      */
     static mulTVec2(rot: Rot, m: Vec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(m);
-        return Vec2.neo(rot.c * m.x + rot.s * m.y, -rot.s * m.x + rot.c * m.y);
+        return new Vec2(rot.c * m.x + rot.s * m.y, -rot.s * m.x + rot.c * m.y);
     }
 
 }

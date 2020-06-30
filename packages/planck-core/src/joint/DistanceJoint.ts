@@ -239,8 +239,8 @@ export class DistanceJoint extends Joint {
         const vB = this.m_bodyB.c_velocity.v;
         let wB = this.m_bodyB.c_velocity.w;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         this.m_rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
         this.m_rB = Rot.mulVec2(qB, Vec2.sub(this.m_localAnchorB, this.m_localCenterB));
@@ -347,8 +347,8 @@ export class DistanceJoint extends Joint {
         const cB = this.m_bodyB.c_position.c;
         let aB = this.m_bodyB.c_position.a;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         const rA = Rot.mulSub(qA, this.m_localAnchorA, this.m_localCenterA);
         const rB = Rot.mulSub(qB, this.m_localAnchorB, this.m_localCenterB);

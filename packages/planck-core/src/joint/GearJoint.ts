@@ -264,10 +264,10 @@ export class GearJoint extends Joint {
         const vD = this.m_bodyD.c_velocity.v;
         let wD = this.m_bodyD.c_velocity.w;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
-        const qC = Rot.neo(aC);
-        const qD = Rot.neo(aD);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
+        const qC = Rot.forAngle(aC);
+        const qD = Rot.forAngle(aD);
 
         this.m_mass = 0.0;
 
@@ -378,10 +378,10 @@ export class GearJoint extends Joint {
         const cD = this.m_bodyD.c_position.c;
         let aD = this.m_bodyD.c_position.a;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
-        const qC = Rot.neo(aC);
-        const qD = Rot.neo(aD);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
+        const qC = Rot.forAngle(aC);
+        const qD = Rot.forAngle(aD);
 
         const linearError = 0.0; // float
 

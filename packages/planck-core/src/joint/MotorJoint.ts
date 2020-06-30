@@ -90,7 +90,7 @@ export class MotorJoint extends Joint {
     /**
      * Set the maximum friction force in N.
      */
-    setMaxForce(force:number) {
+    setMaxForce(force: number) {
         PLANCK_ASSERT && assert(MathUtil.isFinite(force) && force >= 0.0);
         this.m_maxForce = force;
     }
@@ -105,7 +105,7 @@ export class MotorJoint extends Joint {
     /**
      * Set the maximum friction torque in N*m.
      */
-    setMaxTorque(torque:number) {
+    setMaxTorque(torque: number) {
         PLANCK_ASSERT && assert(MathUtil.isFinite(torque) && torque >= 0.0);
         this.m_maxTorque = torque;
     }
@@ -120,7 +120,7 @@ export class MotorJoint extends Joint {
     /**
      * Set the position correction factor in the range [0,1].
      */
-    setCorrectionFactor(factor:number) {
+    setCorrectionFactor(factor: number) {
         PLANCK_ASSERT && assert(MathUtil.isFinite(factor) && 0.0 <= factor && factor <= 1.0);
         this.m_correctionFactor = factor;
     }
@@ -135,7 +135,7 @@ export class MotorJoint extends Joint {
     /**
      * Set/get the target linear offset, in frame A, in meters.
      */
-    setLinearOffset(linearOffset:Vec2) {
+    setLinearOffset(linearOffset: Vec2) {
         if (linearOffset.x !== this.m_linearOffset.x
             || linearOffset.y !== this.m_linearOffset.y) {
             this.m_bodyA.setAwake(true);
@@ -151,7 +151,7 @@ export class MotorJoint extends Joint {
     /**
      * Set/get the target angular offset, in radians.
      */
-    setAngularOffset(angularOffset:number) {
+    setAngularOffset(angularOffset: number) {
         if (angularOffset !== this.m_angularOffset) {
             this.m_bodyA.setAwake(true);
             this.m_bodyB.setAwake(true);
@@ -171,15 +171,15 @@ export class MotorJoint extends Joint {
         return this.m_bodyB.getPosition();
     }
 
-    getReactionForce(inv_dt:number) {
+    getReactionForce(inv_dt: number) {
         return Vec2.mul(inv_dt, this.m_linearImpulse);
     }
 
-    getReactionTorque(inv_dt:number) {
+    getReactionTorque(inv_dt: number) {
         return inv_dt * this.m_angularImpulse;
     }
 
-    initVelocityConstraints(step:TimeStep) {
+    initVelocityConstraints(step: TimeStep) {
         this.m_localCenterA = this.m_bodyA.m_sweep.localCenter;
         this.m_localCenterB = this.m_bodyB.m_sweep.localCenter;
         this.m_invMassA = this.m_bodyA.m_invMass;
@@ -197,7 +197,7 @@ export class MotorJoint extends Joint {
         const vB = this.m_bodyB.c_velocity.v;
         let wB = this.m_bodyB.c_velocity.w;
 
-        const qA = Rot.neo(aA), qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA), qB = Rot.forAngle(aB);
 
         // Compute the effective mass matrix.
         this.m_rA = Rot.mulVec2(qA, Vec2.neg(this.m_localCenterA));
@@ -217,13 +217,12 @@ export class MotorJoint extends Joint {
         const iA = this.m_invIA;
         const iB = this.m_invIB;
 
-        const K = Mat22.zero();
-        K.ex.x = mA + mB + iA * this.m_rA.y * this.m_rA.y + iB * this.m_rB.y
-            * this.m_rB.y;
-        K.ex.y = -iA * this.m_rA.x * this.m_rA.y - iB * this.m_rB.x * this.m_rB.y;
-        K.ey.x = K.ex.y;
-        K.ey.y = mA + mB + iA * this.m_rA.x * this.m_rA.x + iB * this.m_rB.x
-            * this.m_rB.x;
+        const Kbc = -iA * this.m_rA.x * this.m_rA.y - iB * this.m_rB.x * this.m_rB.y;
+        const K = new Mat22(
+            mA + mB + iA * this.m_rA.y * this.m_rA.y + iB * this.m_rB.y * this.m_rB.y,
+            Kbc, Kbc,
+            mA + mB + iA * this.m_rA.x * this.m_rA.x + iB * this.m_rB.x * this.m_rB.x
+        );
 
         this.m_linearMass = K.getInverse();
 
@@ -244,7 +243,7 @@ export class MotorJoint extends Joint {
             this.m_linearImpulse.mul(step.dtRatio);
             this.m_angularImpulse *= step.dtRatio;
 
-            const P = Vec2.neo(this.m_linearImpulse.x, this.m_linearImpulse.y);
+            const P = new Vec2(this.m_linearImpulse.x, this.m_linearImpulse.y);
 
             vA.subMul(mA, P);
             wA -= iA * (Vec2.cross(this.m_rA, P) + this.m_angularImpulse);
@@ -263,7 +262,7 @@ export class MotorJoint extends Joint {
         this.m_bodyB.c_velocity.w = wB;
     }
 
-    solveVelocityConstraints(step:TimeStep) {
+    solveVelocityConstraints(step: TimeStep) {
         const vA = this.m_bodyA.c_velocity.v;
         let wA = this.m_bodyA.c_velocity.w;
         const vB = this.m_bodyB.c_velocity.v;
@@ -320,7 +319,7 @@ export class MotorJoint extends Joint {
         this.m_bodyB.c_velocity.w = wB;
     }
 
-    solvePositionConstraints(step:TimeStep) {
+    solvePositionConstraints(step: TimeStep) {
         return true;
     }
 

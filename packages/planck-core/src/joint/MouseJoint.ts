@@ -91,7 +91,7 @@ export class MouseJoint extends Joint {
     /**
      * Use this to update the target point.
      */
-    setTarget(target:Vec2) {
+    setTarget(target: Vec2) {
         if (!this.m_bodyB.isAwake()) {
             this.m_bodyB.setAwake(true);
         }
@@ -105,7 +105,7 @@ export class MouseJoint extends Joint {
     /**
      * Set/get the maximum force in Newtons.
      */
-    setMaxForce(force:number) {
+    setMaxForce(force: number) {
         this.m_maxForce = force;
     }
 
@@ -116,7 +116,7 @@ export class MouseJoint extends Joint {
     /**
      * Set/get the frequency in Hertz.
      */
-    setFrequency(hz:number) {
+    setFrequency(hz: number) {
         this.m_frequencyHz = hz;
     }
 
@@ -127,11 +127,11 @@ export class MouseJoint extends Joint {
     /**
      * Set/get the damping ratio (dimensionless).
      */
-    setDampingRatio(ratio:number) {
+    setDampingRatio(ratio: number) {
         this.m_dampingRatio = ratio;
     }
 
-    getDampingRatio():number {
+    getDampingRatio(): number {
         return this.m_dampingRatio;
     }
 
@@ -143,19 +143,19 @@ export class MouseJoint extends Joint {
         return this.m_bodyB.getWorldPoint(this.m_localAnchorB);
     }
 
-    getReactionForce(inv_dt:number) {
+    getReactionForce(inv_dt: number) {
         return Vec2.mul(inv_dt, this.m_impulse);
     }
 
-    getReactionTorque(inv_dt:number) {
+    getReactionTorque(inv_dt: number) {
         return 0.0;
     }
 
-    shiftOrigin(newOrigin:Vec2) {
+    shiftOrigin(newOrigin: Vec2) {
         this.m_targetA.sub(newOrigin);
     }
 
-    initVelocityConstraints(step:TimeStep) {
+    initVelocityConstraints(step: TimeStep) {
         this.m_localCenterB = this.m_bodyB.m_sweep.localCenter;
         this.m_invMassB = this.m_bodyB.m_invMass;
         this.m_invIB = this.m_bodyB.m_invI;
@@ -168,7 +168,7 @@ export class MouseJoint extends Joint {
         const vB = velocity.v;
         let wB = velocity.w;
 
-        const qB = Rot.neo(aB);
+        const qB = Rot.forAngle(aB);
 
         const mass = this.m_bodyB.getMass();
 
@@ -200,13 +200,14 @@ export class MouseJoint extends Joint {
         // = [1/m1+1/m2 0 ] + invI1 * [r1.y*r1.y -r1.x*r1.y] + invI2 * [r1.y*r1.y
         // -r1.x*r1.y]
         // [ 0 1/m1+1/m2] [-r1.x*r1.y r1.x*r1.x] [-r1.x*r1.y r1.x*r1.x]
-        const K = Mat22.zero();
-        K.ex.x = this.m_invMassB + this.m_invIB * this.m_rB.y * this.m_rB.y
-            + this.m_gamma;
-        K.ex.y = -this.m_invIB * this.m_rB.x * this.m_rB.y;
-        K.ey.x = K.ex.y;
-        K.ey.y = this.m_invMassB + this.m_invIB * this.m_rB.x * this.m_rB.x
-            + this.m_gamma;
+
+        // TODO: reuse m_mass object!!
+        const b_c = -this.m_invIB * this.m_rB.x * this.m_rB.y;
+        const K = new Mat22(
+            this.m_invMassB + this.m_invIB * this.m_rB.y * this.m_rB.y + this.m_gamma,
+            b_c, b_c,
+            this.m_invMassB + this.m_invIB * this.m_rB.x * this.m_rB.x + this.m_gamma
+        );
 
         this.m_mass = K.getInverse();
 
@@ -230,7 +231,7 @@ export class MouseJoint extends Joint {
         velocity.w = wB;
     }
 
-    solveVelocityConstraints(step:TimeStep) {
+    solveVelocityConstraints(step: TimeStep) {
         const velocity = this.m_bodyB.c_velocity;
         const vB = velocity.v;
         let wB = velocity.w;
@@ -258,7 +259,7 @@ export class MouseJoint extends Joint {
         velocity.w = wB;
     }
 
-    solvePositionConstraints(step:TimeStep) {
+    solvePositionConstraints(step: TimeStep) {
         return true;
     }
 }

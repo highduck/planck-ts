@@ -324,7 +324,7 @@ export class RevoluteJoint extends Joint {
      * Get the reaction force given the inverse time step. Unit is N.
      */
     getReactionForce(inv_dt: number) {
-        return Vec2.neo(this.m_impulse.x, this.m_impulse.y).mul(inv_dt);
+        return new Vec2(inv_dt * this.m_impulse.x, inv_dt * this.m_impulse.y);
     }
 
     /**
@@ -351,8 +351,8 @@ export class RevoluteJoint extends Joint {
         const vB = this.m_bodyB.c_velocity.v;
         let wB = this.m_bodyB.c_velocity.w;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         this.m_rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
         this.m_rB = Rot.mulVec2(qB, Vec2.sub(this.m_localAnchorB, this.m_localCenterB));
@@ -427,7 +427,7 @@ export class RevoluteJoint extends Joint {
             this.m_impulse.mul(step.dtRatio);
             this.m_motorImpulse *= step.dtRatio;
 
-            const P = Vec2.neo(this.m_impulse.x, this.m_impulse.y);
+            const P = new Vec2(this.m_impulse.x, this.m_impulse.y);
 
             vA.subMul(mA, P);
             wA -= iA * (Vec2.cross(this.m_rA, P) + this.m_motorImpulse + this.m_impulse.z);
@@ -490,7 +490,7 @@ export class RevoluteJoint extends Joint {
                 const newImpulse = this.m_impulse.z + impulse.z; // float
 
                 if (newImpulse < 0.0) {
-                    const rhs = Vec2.combine(-1, Cdot1, this.m_impulse.z, Vec2.neo(this.m_mass.ez.x, this.m_mass.ez.y)); // Vec2
+                    const rhs = Vec2.combine(-1, Cdot1, this.m_impulse.z, new Vec2(this.m_mass.ez.x, this.m_mass.ez.y)); // Vec2
                     const reduced = this.m_mass.solve22(rhs); // Vec2
                     impulse.x = reduced.x;
                     impulse.y = reduced.y;
@@ -507,7 +507,7 @@ export class RevoluteJoint extends Joint {
                 const newImpulse = this.m_impulse.z + impulse.z; // float
 
                 if (newImpulse > 0.0) {
-                    const rhs = Vec2.combine(-1, Cdot1, this.m_impulse.z, Vec2.neo(this.m_mass.ez.x, this.m_mass.ez.y)); // Vec2
+                    const rhs = Vec2.combine(-1, Cdot1, this.m_impulse.z, new Vec2(this.m_mass.ez.x, this.m_mass.ez.y));
                     const reduced = this.m_mass.solve22(rhs); // Vec2
                     impulse.x = reduced.x;
                     impulse.y = reduced.y;
@@ -521,7 +521,7 @@ export class RevoluteJoint extends Joint {
                 }
             }
 
-            const P = Vec2.neo(impulse.x, impulse.y);
+            const P = new Vec2(impulse.x, impulse.y);
 
             vA.subMul(mA, P);
             wA -= iA * (Vec2.cross(this.m_rA, P) + impulse.z);
@@ -558,8 +558,8 @@ export class RevoluteJoint extends Joint {
         const cB = this.m_bodyB.c_position.c;
         let aB = this.m_bodyB.c_position.a;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         let angularError = 0.0; // float
         let positionError = 0.0; // float
@@ -618,11 +618,12 @@ export class RevoluteJoint extends Joint {
             const iA = this.m_invIA;
             const iB = this.m_invIB; // float
 
-            const K = Mat22.zero();
-            K.ex.x = mA + mB + iA * rA.y * rA.y + iB * rB.y * rB.y;
-            K.ex.y = -iA * rA.x * rA.y - iB * rB.x * rB.y;
-            K.ey.x = K.ex.y;
-            K.ey.y = mA + mB + iA * rA.x * rA.x + iB * rB.x * rB.x;
+            const Kbc = -iA * rA.x * rA.y - iB * rB.x * rB.y;
+            const K = new Mat22(
+                mA + mB + iA * rA.y * rA.y + iB * rB.y * rB.y,
+                Kbc, Kbc,
+                mA + mB + iA * rA.x * rA.x + iB * rB.x * rB.x
+            );
 
             const impulse = Vec2.neg(K.solve(C)); // Vec2
 

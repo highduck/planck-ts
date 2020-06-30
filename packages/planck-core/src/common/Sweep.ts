@@ -35,11 +35,9 @@ export class Sweep {
     }
 
     setLocalCenter(localCenter: Vec2, xf: Transform) {
-        this.localCenter.set(localCenter.x, localCenter.y);
-
-        const c = Transform.mulVec2(xf, this.localCenter);
-        this.c.copyFrom(c);
-        this.c0.copyFrom(c);
+        this.localCenter.copyFrom(localCenter);
+        Transform._mulVec2(xf, localCenter, this.c);
+        this.c0.copyFrom(this.c);
     }
 
     /**

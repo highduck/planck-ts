@@ -44,7 +44,7 @@ export interface WheelJointDef extends JointDef {
 }
 
 export class WheelJoint extends Joint {
-    static readonly TYPE:JointType = 'wheel-joint';
+    static readonly TYPE: JointType = 'wheel-joint';
 
     readonly m_localAnchorA: Vec2;
     readonly m_localAnchorB: Vec2;
@@ -95,7 +95,7 @@ export class WheelJoint extends Joint {
         super(def, WheelJoint.TYPE);
         this.m_localAnchorA = Vec2.clone(def.anchor ? def.bodyA.getLocalPoint(def.anchor) : def.localAnchorA || Vec2.zero());
         this.m_localAnchorB = Vec2.clone(def.anchor ? def.bodyB.getLocalPoint(def.anchor) : def.localAnchorB || Vec2.zero());
-        this.m_localXAxisA = Vec2.clone(def.axis ? def.bodyA.getLocalVector(def.axis) : def.localAxisA || Vec2.neo(1.0, 0.0));
+        this.m_localXAxisA = Vec2.clone(def.axis ? def.bodyA.getLocalVector(def.axis) : def.localAxisA || new Vec2(1, 0));
         this.m_localYAxisA = Vec2.crossSV(1.0, this.m_localXAxisA);
 
         this.m_maxMotorTorque = def.maxMotorTorque ?? 0;
@@ -228,7 +228,7 @@ export class WheelJoint extends Joint {
     /**
      * Enable/disable the joint motor.
      */
-    enableMotor(flag:boolean) {
+    enableMotor(flag: boolean) {
         this.m_bodyA.setAwake(true);
         this.m_bodyB.setAwake(true);
         this.m_enableMotor = flag;
@@ -237,7 +237,7 @@ export class WheelJoint extends Joint {
     /**
      * Set the motor speed, usually in radians per second.
      */
-    setMotorSpeed(speed:number) {
+    setMotorSpeed(speed: number) {
         this.m_bodyA.setAwake(true);
         this.m_bodyB.setAwake(true);
         this.m_motorSpeed = speed;
@@ -253,7 +253,7 @@ export class WheelJoint extends Joint {
     /**
      * Set/Get the maximum motor force, usually in N-m.
      */
-    setMaxMotorTorque(torque:number) {
+    setMaxMotorTorque(torque: number) {
         this.m_bodyA.setAwake(true);
         this.m_bodyB.setAwake(true);
         this.m_maxMotorTorque = torque;
@@ -266,7 +266,7 @@ export class WheelJoint extends Joint {
     /**
      * Get the current motor torque given the inverse time step, usually in N-m.
      */
-    getMotorTorque(inv_dt:number) {
+    getMotorTorque(inv_dt: number) {
         return inv_dt * this.m_motorImpulse;
     }
 
@@ -274,7 +274,7 @@ export class WheelJoint extends Joint {
      * Set/Get the spring frequency in hertz. Setting the frequency to zero disables
      * the spring.
      */
-    setSpringFrequencyHz(hz:number) {
+    setSpringFrequencyHz(hz: number) {
         this.m_frequencyHz = hz;
     }
 
@@ -285,7 +285,7 @@ export class WheelJoint extends Joint {
     /**
      * Set/Get the spring damping ratio
      */
-    setSpringDampingRatio(ratio:number) {
+    setSpringDampingRatio(ratio: number) {
         this.m_dampingRatio = ratio;
     }
 
@@ -301,15 +301,15 @@ export class WheelJoint extends Joint {
         return this.m_bodyB.getWorldPoint(this.m_localAnchorB);
     }
 
-    getReactionForce(inv_dt:number) {
+    getReactionForce(inv_dt: number) {
         return Vec2.combine(this.m_impulse, this.m_ay, this.m_springImpulse, this.m_ax).mul(inv_dt);
     }
 
-    getReactionTorque(inv_dt:number) {
+    getReactionTorque(inv_dt: number) {
         return inv_dt * this.m_motorImpulse;
     }
 
-    initVelocityConstraints(step:TimeStep) {
+    initVelocityConstraints(step: TimeStep) {
         this.m_localCenterA = this.m_bodyA.m_sweep.localCenter;
         this.m_localCenterB = this.m_bodyB.m_sweep.localCenter;
         this.m_invMassA = this.m_bodyA.m_invMass;
@@ -332,8 +332,8 @@ export class WheelJoint extends Joint {
         const vB = this.m_bodyB.c_velocity.v;
         let wB = this.m_bodyB.c_velocity.w;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         // Compute the effective masses.
         const rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
@@ -437,7 +437,7 @@ export class WheelJoint extends Joint {
         this.m_bodyB.c_velocity.w = wB;
     }
 
-    solveVelocityConstraints(step:TimeStep) {
+    solveVelocityConstraints(step: TimeStep) {
         const mA = this.m_invMassA;
         const mB = this.m_invMassB; // float
         const iA = this.m_invIA;
@@ -506,14 +506,14 @@ export class WheelJoint extends Joint {
         this.m_bodyB.c_velocity.w = wB;
     }
 
-    solvePositionConstraints(step:TimeStep) {
+    solvePositionConstraints(step: TimeStep) {
         const cA = this.m_bodyA.c_position.c;
         let aA = this.m_bodyA.c_position.a;
         const cB = this.m_bodyB.c_position.c;
         let aB = this.m_bodyB.c_position.a;
 
-        const qA = Rot.neo(aA);
-        const qB = Rot.neo(aB);
+        const qA = Rot.forAngle(aA);
+        const qB = Rot.forAngle(aB);
 
         const rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
         const rB = Rot.mulVec2(qB, Vec2.sub(this.m_localAnchorB, this.m_localCenterB));
