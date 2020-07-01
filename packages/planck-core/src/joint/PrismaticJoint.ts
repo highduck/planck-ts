@@ -39,7 +39,7 @@ const equalLimits = 3;
  * @prop {float} referenceAngle The constrained angle between the bodies:
  *       bodyB_angle - bodyA_angle.
  */
-interface PrismaticJointDef extends JointDef {
+export interface PrismaticJointDef extends JointDef {
     enableLimit?: boolean;// false,
     lowerTranslation?: number;// 0.0,
     upperTranslation?: number;// 0.0,

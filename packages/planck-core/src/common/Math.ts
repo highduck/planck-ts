@@ -58,15 +58,17 @@ export class MathUtil {
         return num < min ? min : (num > max ? max : num);
     }
 
-    // static random(min, max) {
-    //     if (typeof min === 'undefined') {
-    //         max = 1;
-    //         min = 0;
-    //     } else if (typeof max === 'undefined') {
-    //         max = min;
-    //         min = 0;
-    //     }
-    //     return min == max ? min : Math.random() * (max - min) + min;
-    // }
+    // very utility method:
+    // TODO: move to testbed
+    static random(min?: number, max?: number) {
+        if (min === undefined) {
+            max = 1;
+            min = 0;
+        } else if (max === undefined) {
+            max = min;
+            min = 0;
+        }
+        return min === max ? min : Math.random() * (max - min) + min;
+    }
 
 }

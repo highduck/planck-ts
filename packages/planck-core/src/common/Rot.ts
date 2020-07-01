@@ -148,4 +148,11 @@ export class Rot {
         return new Vec2(rot.c * m.x + rot.s * m.y, -rot.s * m.x + rot.c * m.y);
     }
 
+    static _mulTVec2(rot: Rot, v: Vec2, out: Vec2) {
+        const x = rot.c * v.x + rot.s * v.y;
+        const y = -rot.s * v.x + rot.c * v.y;
+        out.x = x;
+        out.y = y;
+    }
+
 }

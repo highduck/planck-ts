@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "isolatedModules": false,
+    "rootDir": "./src",
+    "paths": {
+      "planck-ts-core": [
+        "../planck-core/src"
+      ]
+    }
+  },
+  "files": [],
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "./src/index.js",
+    "**/node_modules",
+    "dist/**"
+  ]
+}

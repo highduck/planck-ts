@@ -7,7 +7,7 @@ import {Vec2} from "../common/Vec2";
  */
 export class BoxShape extends PolygonShape {
     static TYPE: ShapeType = 'polygon';
-    constructor(hx:number, hy:number, center:Vec2, angle:number) {
+    constructor(hx:number, hy:number, center?:Vec2, angle:number = 0) {
         super();
         this._setAsBox(hx, hy, center, angle);
     }

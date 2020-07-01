@@ -2,7 +2,10 @@ export {Contact} from './Contact';
 export {Fixture, FixtureDef} from './Fixture';
 export {Manifold} from './Manifold';
 export * from './common/Vec2';
+export * from './common/Transform';
+export * from './collision/AABB';
 export {World, WorldDef} from './World';
+export {Body, BodyDef} from './Body';
 
 // shapes
 export {BoxShape} from './shape/BoxShape';
@@ -11,6 +14,26 @@ export {EdgeShape} from './shape/EdgeShape';
 export {ChainShape} from './shape/ChainShape';
 export {PolygonShape} from './shape/PolygonShape';
 //export {Shape} from './Shape';
+
+export {DistanceJoint, DistanceJointDef} from './joint/DistanceJoint';
+export {FrictionJoint, FrictionJointDef} from './joint/FrictionJoint';
+export {GearJoint, GearJointDef} from './joint/GearJoint';
+export {MotorJoint, MotorJointDef} from './joint/MotorJoint';
+export {MouseJoint, MouseJointDef} from './joint/MouseJoint';
+export {PrismaticJoint, PrismaticJointDef} from './joint/PrismaticJoint';
+export {PulleyJoint, PulleyJointDef} from './joint/PulleyJoint';
+export {RopeJoint, RopeJointDef} from './joint/RopeJoint';
+export {RevoluteJoint, RevoluteJointDef} from './joint/RevoluteJoint';
+export {WeldJoint, WeldJointDef} from './joint/WeldJoint';
+export {WheelJoint, WheelJointDef} from './joint/WheelJoint';
+
+export {MathUtil} from './common/Math';
+export {SimplexCache, DistanceOutput, DistanceInput, Distance, GJKStats, testOverlap} from './collision/Distance';
+export {Sweep} from './common/Sweep';
+export {timeOfImpact, TOIInput, TOIOutput, TOIStats, TOIOutputState} from './collision/TimeOfImpact';
+export {DynamicTree} from './collision/DynamicTree';
+
+export {Settings} from './Settings';
 
 import './shape/CollideCircle';
 import './shape/CollideEdgeCircle';

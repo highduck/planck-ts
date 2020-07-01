@@ -66,9 +66,9 @@ function FindMaxSeparation(poly1: PolygonShape, xf1: Transform, poly2: PolygonSh
  * @param {int} edge1
  */
 const s_FindIncidentEdge_normal = new Vec2(0, 0);
-const s_clipVertexPair0:ClipVertexPair = [new ClipVertex(), new ClipVertex()];
-const s_clipVertexPair1:ClipVertexPair = [new ClipVertex(), new ClipVertex()];
-const s_clipVertexPair2:ClipVertexPair = [new ClipVertex(), new ClipVertex()];
+const s_clipVertexPair0: ClipVertexPair = [new ClipVertex(), new ClipVertex()];
+const s_clipVertexPair1: ClipVertexPair = [new ClipVertex(), new ClipVertex()];
+const s_clipVertexPair2: ClipVertexPair = [new ClipVertex(), new ClipVertex()];
 
 function FindIncidentEdge(c0: ClipVertex, c1: ClipVertex,
                           poly1: PolygonShape, xf1: Transform, edge1: number,
@@ -83,10 +83,10 @@ function FindIncidentEdge(c0: ClipVertex, c1: ClipVertex,
 
     // Get the normal of the reference edge in poly2's frame.
 
-    //const normal1 = Rot.mulTVec2(xf2.q, Rot.mulVec2(xf1.q, normals1[edge1]));
+    // const normal1 = Rot.mulTVec2(xf2.q, Rot.mulVec2(xf1.q, normals1[edge1]));
     const normal1 = s_FindIncidentEdge_normal;
     Rot._mulVec2(xf1.q, normals1[edge1], normal1);
-    Rot._mulVec2(xf2.q, normal1, normal1);
+    Rot._mulTVec2(xf2.q, normal1, normal1);
 
     // Find the incident edge on poly2.
     let index = 0;
@@ -167,6 +167,7 @@ function CollidePolygons(manifold: Manifold, polyA: PolygonShape, xfA: Transform
     }
 
     const incidentEdge = s_clipVertexPair0;
+    // const incidentEdge: ClipVertexPair = [new ClipVertex(), new ClipVertex()];
     FindIncidentEdge(incidentEdge[0], incidentEdge[1], poly1, xf1, edge1, poly2, xf2);
 
     const count1 = poly1.m_count;
@@ -199,7 +200,9 @@ function CollidePolygons(manifold: Manifold, polyA: PolygonShape, xfA: Transform
 
     // Clip incident edge against extruded edge1 side edges.
     const clipPoints1 = s_clipVertexPair1;
+    // const clipPoints1: ClipVertexPair = [new ClipVertex(), new ClipVertex()];
     const clipPoints2 = s_clipVertexPair2;
+    // const clipPoints2: ClipVertexPair = [new ClipVertex(), new ClipVertex()];
 
     // Clip to box side 1
     let np = clipSegmentToLine(clipPoints1, incidentEdge, Vec2.neg(tangent), sideOffset1, iv1);

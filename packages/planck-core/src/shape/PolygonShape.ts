@@ -226,8 +226,10 @@ export class PolygonShape extends Shape {
 
             // Transform vertices and normals.
             for (let i = 0; i < this.m_count; ++i) {
-                this.m_vertices[i] = Transform.mulVec2(xf, this.m_vertices[i]);
-                this.m_normals[i] = Rot.mulVec2(xf.q, this.m_normals[i]);
+                const v = this.m_vertices[i];
+                const n = this.m_normals[i];
+                Transform._mulVec2(xf, v, v);
+                Rot._mulVec2(xf.q, n, n);
             }
         }
     }
@@ -266,7 +268,7 @@ export class PolygonShape extends Shape {
             const numerator = normal.x * (vertex.x - p1.x) + normal.y * (vertex.y - p1.y);
             const denominator = Vec2.dot(normal, d);
 
-            if (denominator == 0.0) {
+            if (denominator === 0.0) {
                 if (numerator < 0.0) {
                     return false;
                 }

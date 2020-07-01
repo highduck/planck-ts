@@ -11,6 +11,12 @@ export class Vec2 {
                 public y: number) {
     }
 
+    scale(sx: number, sy: number): this {
+        this.x *= sx;
+        this.y *= sy;
+        return this;
+    }
+
     static zero(): Vec2 {
         // todo: could be static readonly ref
         return new Vec2(0, 0);
@@ -417,6 +423,11 @@ export class Vec2 {
         v = new Vec2(v.x, v.y);
         v.clamp(max);
         return v;
+    }
+
+    clampVec2(min: Vec2, max: Vec2) {
+        this.x = MathUtil.clamp(this.x, min.x, max.x);
+        this.y = MathUtil.clamp(this.x, min.y, max.y);
     }
 
     static _combine(a: number, u: Vec2, b: number, v: Vec2, out: Vec2) {

@@ -19,12 +19,6 @@ export const enum BodyType {
     DYNAMIC = 2
 }
 
-const _BodyType = {
-    STATIC: BodyType.STATIC,
-    KINEMATIC: BodyType.KINEMATIC,
-    DYNAMIC: BodyType.DYNAMIC
-};
-
 /**
  * @typedef {Object} BodyDef
  *
@@ -98,6 +92,10 @@ export type BodyRestoreFunction<T> = (ctor: T, data: any, b: Body) => T;
  * @param {BodyDef} def
  */
 export class Body {
+    static readonly STATIC = BodyType.STATIC;
+    static readonly KINEMATIC = BodyType.KINEMATIC;
+    static readonly DYNAMIC = BodyType.DYNAMIC;
+
     m_awakeFlag: boolean;
     m_autoSleepFlag: boolean;
     m_bulletFlag: boolean;
@@ -447,6 +445,21 @@ export class Body {
 
         this.m_xf.setPosAngle(position, angle);
         this.m_sweep.setTransform(this.m_xf);
+
+        const broadPhase = this.m_world.m_broadPhase;
+        for (let f = this.m_fixtureList; f; f = f.m_next) {
+            f.synchronize(broadPhase, this.m_xf, this.m_xf);
+        }
+    }
+
+    setTransform2(xf: Transform) {
+        PLANCK_ASSERT && assert(!this.isWorldLocked());
+        if (this.isWorldLocked()) {
+            return;
+        }
+
+        this.m_xf.copyFrom(xf);
+        this.m_sweep.setTransform(xf);
 
         const broadPhase = this.m_world.m_broadPhase;
         for (let f = this.m_fixtureList; f; f = f.m_next) {
@@ -927,14 +940,14 @@ export class Body {
      * @param {Shape|FixtureDef} shape Shape or fixture definition.
      * @param {FixtureDef|number} fixdef Fixture definition or just density.
      */
-    createFixture(shape: Shape, def: FixtureDef) {
+    createFixture(shape: Shape, def?: FixtureDef) {
         PLANCK_ASSERT && assert(!this.isWorldLocked());
 
         if (this.isWorldLocked()) {
             throw new Error("world is locked");
         }
 
-        const fixture = new Fixture(this, shape, def);
+        const fixture = new Fixture(this, shape, def ?? {});
         this._addFixture(fixture);
         return fixture;
     }

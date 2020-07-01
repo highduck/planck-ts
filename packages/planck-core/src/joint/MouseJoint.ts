@@ -69,9 +69,9 @@ export class MouseJoint extends Joint {
 
     constructor(def: MouseJointDef) {
         super(def, MouseJoint.TYPE);
-        PLANCK_ASSERT && assert(def.maxForce && MathUtil.isFinite(def.maxForce) && def.maxForce >= 0.0);
-        PLANCK_ASSERT && assert(def.frequencyHz && MathUtil.isFinite(def.frequencyHz) && def.frequencyHz >= 0.0);
-        PLANCK_ASSERT && assert(def.dampingRatio && MathUtil.isFinite(def.dampingRatio) && def.dampingRatio >= 0.0);
+        PLANCK_ASSERT && def.maxForce !== undefined && assert(MathUtil.isFinite(def.maxForce) && def.maxForce >= 0.0);
+        PLANCK_ASSERT && def.frequencyHz !== undefined && assert(MathUtil.isFinite(def.frequencyHz) && def.frequencyHz >= 0.0);
+        PLANCK_ASSERT && def.dampingRatio !== undefined && assert(MathUtil.isFinite(def.dampingRatio) && def.dampingRatio >= 0.0);
 
         this.m_targetA = def.target ?? Vec2.zero();
         this.m_localAnchorB = Transform.mulTVec2(def.bodyB.getTransform(), this.m_targetA);

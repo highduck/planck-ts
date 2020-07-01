@@ -1,0 +1,60 @@
+{
+  "name": "planck-ts-examples",
+  "version": "0.0.1",
+  "description": "2D JavaScript physics engine for cross-platform HTML5 game development",
+  "homepage": "http://shakiba.me/planck.js",
+  "keywords": [
+    "box2d",
+    "html5",
+    "javascript",
+    "game",
+    "physics",
+    "engine",
+    "2d",
+    "mobile"
+  ],
+  "license": "zlib",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/highduck/planck-ts.git"
+  },
+  "private": true,
+  "files": [
+    "dist/",
+    "doc/",
+    "lib/",
+    "test/",
+    "testbed/"
+  ],
+  "author": "Ali Shakiba",
+  "contributors": [
+    {
+      "name": "Ali Shakiba",
+      "url": "http://shakiba.me/planck.js"
+    },
+    {
+      "name": "Erin Catto",
+      "url": "http://box2d.org/"
+    }
+  ],
+  "scripts": {
+    "ci": "echo OK",
+    "start": "nodemon src/server.cjs",
+    "clean": "rimraf dist/"
+  },
+  "devDependencies": {
+    "express": "^4.17.1",
+    "handlebars": "^4.7.6",
+    "@types/node": "^14.0.13",
+    "typescript": "^3.9.5",
+    "serve-index": "^1.9.1",
+    "planck-ts-testbed": "^0.0.1",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-middleware": "^3.7.2",
+    "webpack-closure-compiler": "^2.1.6",
+    "babel-loader": "^8.1.0",
+    "@babel/core": "^7.10.3",
+    "@babel/preset-env": "^7.10.3"
+  }
+}

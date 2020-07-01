@@ -460,12 +460,12 @@ export class World {
      * @param {BodyDef|Vec2} def Body definition or position.
      * @param {float} angle Body angle if def is position.
      */
-    createBody(def: BodyDef): Body {
+    createBody(def?: BodyDef): Body {
         PLANCK_ASSERT && assert(!this.isLocked());
         if (this.isLocked()) {
             throw new Error("world is locked");
         }
-        const body = new Body(this, def);
+        const body = new Body(this, def ?? {});
         this._addBody(body);
         return body;
     }

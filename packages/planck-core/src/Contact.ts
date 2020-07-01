@@ -262,15 +262,21 @@ export class Contact {
      *
      * @param {WorldManifold} [worldManifold]
      */
-    getWorldManifold(worldManifold: WorldManifold) {
+    getWorldManifold(worldManifold?: WorldManifold): WorldManifold {
         const bodyA = this.m_fixtureA.getBody();
         const bodyB = this.m_fixtureB.getBody();
         const shapeA = this.m_fixtureA.getShape();
         const shapeB = this.m_fixtureB.getShape();
 
-        return this.m_manifold.getWorldManifold(worldManifold,
+        if (worldManifold === undefined) {
+            worldManifold = s_worldManifold;
+            worldManifold.reset();
+        }
+        this.m_manifold.getWorldManifold(worldManifold,
             bodyA.getTransform(), shapeA.m_radius,
             bodyB.getTransform(), shapeB.m_radius);
+
+        return worldManifold;
     }
 
     /**

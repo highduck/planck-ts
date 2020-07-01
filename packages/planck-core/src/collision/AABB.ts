@@ -17,6 +17,13 @@ export class AABB {
         return new AABB(0, 0, 0, 0);
     }
 
+    translateVec2(v: Vec2) {
+        this.lx += v.x;
+        this.ly += v.y;
+        this.ux += v.x;
+        this.uy += v.y;
+    }
+
     set(lx: number, ly: number, ux: number, uy: number) {
         this.lx = lx;
         this.ly = ly;
