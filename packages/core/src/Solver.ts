@@ -401,7 +401,7 @@ export class Solver {
 
                 if (!body.m_autoSleepFlag
                     || (body.m_angularVelocity * body.m_angularVelocity > angTolSqr)
-                    || (Vec2.lengthSquared(body.m_linearVelocity) > linTolSqr)) {
+                    || (body.m_linearVelocity.lengthSquared() > linTolSqr)) {
                     body.m_sleepTime = 0.0;
                     minSleepTime = 0.0;
                 } else {

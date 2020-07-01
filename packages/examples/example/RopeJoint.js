@@ -1,4 +1,4 @@
-import {Body, BoxShape, EdgeShape, RevoluteJoint, RopeJoint, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, EdgeShape, RevoluteJoint, RopeJoint, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 /// This test shows how a rope joint can be used to stabilize a chain of

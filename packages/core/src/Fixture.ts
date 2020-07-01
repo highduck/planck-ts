@@ -343,7 +343,6 @@ export class Fixture {
      * next transformation).
      */
     synchronize(broadPhase: BroadPhase, xf1: Transform, xf2: Transform) {
-        const displacement = TMP_VEC2_0;
         const aabb0 = TMP_AABB_0;
         const aabb1 = TMP_AABB_1;
 
@@ -353,11 +352,17 @@ export class Fixture {
             // effect).
             this.m_shape.computeAABB(aabb0, xf1, proxy.childIndex);
             this.m_shape.computeAABB(aabb1, xf2, proxy.childIndex);
-
             proxy.aabb.combine(aabb0, aabb1);
+            broadPhase.moveProxy(proxy.proxyId, proxy.aabb, xf2.x - xf1.x, xf2.y - xf1.y);
+        }
+    }
 
-            Vec2._sub(xf2.p, xf1.p, displacement);
-            broadPhase.moveProxy(proxy.proxyId, proxy.aabb, displacement);
+    // version for not moved
+    synchronize1(broadPhase: BroadPhase, xf: Transform) {
+        for (let i = 0; i < this.m_proxyCount; ++i) {
+            const proxy = this.m_proxies[i];
+            this.m_shape.computeAABB(proxy.aabb, xf, proxy.childIndex);
+            broadPhase.moveProxy(proxy.proxyId, proxy.aabb, 0, 0);
         }
     }
 

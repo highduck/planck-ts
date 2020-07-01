@@ -29,7 +29,7 @@ export class Sweep {
         const c = Transform.mulVec2(xf, this.localCenter);
         this.c.copyFrom(c);
         this.c0.copyFrom(c);
-        const angle = xf.q.getAngle();
+        const angle = Rot.getAngle(xf);
         this.a = angle;
         this.a0 = angle;
     }
@@ -47,11 +47,14 @@ export class Sweep {
      * @param beta A factor in [0,1], where 0 indicates alpha0
      */
     getTransform(xf: Transform, beta: number) {
-        xf.q.setAngle((1.0 - beta) * this.a0 + beta * this.a);
-        xf.p.setCombine((1.0 - beta), this.c0, beta, this.c);
+        // xf.q.setAngle((1.0 - beta) * this.a0 + beta * this.a);
+        // xf.p.setCombine((1.0 - beta), this.c0, beta, this.c);
+        Rot.setAngle(xf, (1.0 - beta) * this.a0 + beta * this.a);
+        Vec2._combine((1.0 - beta), this.c0, beta, this.c, xf);
 
         // shift to origin
-        xf.p.sub(Rot.mulVec2(xf.q, this.localCenter));
+        // xf.p.sub(Rot.mulVec2(xf.q, this.localCenter));
+        Vec2._sub(xf, Rot.mulVec2(xf, this.localCenter), xf);
     }
 
     /**

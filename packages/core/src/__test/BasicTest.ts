@@ -1,6 +1,5 @@
 /// <reference path="../global.d.ts" />
-(global as any).PLANCK_DEBUG = true;
-(global as any).PLANCK_ASSERT = true;
+import {ShapeType} from "../Shape";
 import {expect} from "chai";
 
 import {World} from "../World";
@@ -8,6 +7,9 @@ import {BodyType} from "../Body";
 import {CircleShape} from "../shape/CircleShape";
 import {Vec2} from '../common/Vec2';
 import '../shape/CollideCircle';
+
+(global as any).PLANCK_DEBUG = true;
+(global as any).PLANCK_ASSERT = true;
 
 describe('Basic', () => {
 
@@ -24,7 +26,7 @@ describe('Basic', () => {
 
         b1.createFixture(circle, {});
 
-        expect(b1.getFixtureList()!.getType()).equal('circle');
+        expect(b1.getFixtureList()!.getType()).equal(ShapeType.CIRCLE);
         expect(b1.getWorld()).equal(world);
         expect(world.getBodyList()).equal(b1);
 

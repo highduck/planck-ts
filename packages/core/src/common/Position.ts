@@ -11,8 +11,8 @@ export class Position {
     a = 0.0;
 
     getTransform(xf: Transform, p: Vec2) {
-        xf.q.setAngle(this.a);
-        xf.p.copyFrom(Vec2.sub(this.c, Rot.mulVec2(xf.q, p)));
+        Rot.setAngle(xf, this.a);
+        Vec2._sub(this.c, Rot.mulVec2(xf, p), xf);
         return xf;
     }
 }

@@ -1,4 +1,4 @@
-import {Body, BoxShape, CircleShape, EdgeShape, PolygonShape, PrismaticJoint, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, CircleShape, EdgeShape, PolygonShape, PrismaticJoint, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('CollisionFiltering', function (testbed) {

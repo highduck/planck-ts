@@ -1,4 +1,4 @@
-import {Vec2} from "./common/Vec2";
+import {IVec2, Vec2} from "./common/Vec2";
 import {assert} from "./util/common";
 import {Body} from './Body';
 import {TimeStep} from "./TimeStep";
@@ -157,7 +157,7 @@ export class Joint {
      *
      * @return {Vec2}
      */
-    getAnchorA(): Vec2 {
+    getAnchorA(): IVec2 {
         return Vec2.zero();
     }
 
@@ -166,7 +166,7 @@ export class Joint {
      *
      * @return {Vec2}
      */
-    getAnchorB(): Vec2 {
+    getAnchorB(): IVec2 {
         return Vec2.zero();
     }
 

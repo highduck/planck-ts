@@ -1,4 +1,4 @@
-import {Body, BoxShape, CircleShape, EdgeShape, PolygonShape, Vec2, WeldJoint, World} from 'planck-ts-core';
+import {Body, BoxShape, CircleShape, EdgeShape, PolygonShape, Vec2, WeldJoint, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // It is difficult to make a cantilever made of links completely rigid with weld joints.

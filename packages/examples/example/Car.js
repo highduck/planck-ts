@@ -8,7 +8,7 @@ import {
     Vec2,
     WheelJoint,
     World
-} from 'planck-ts-core';
+} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // This is a fun demo that shows off the wheel joint

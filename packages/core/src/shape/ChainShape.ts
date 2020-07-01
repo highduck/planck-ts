@@ -19,7 +19,7 @@ import {AABB} from "../collision/AABB";
  * WARNING: The chain will not collide properly if there are self-intersections.
  */
 export class ChainShape extends Shape {
-    static TYPE: ShapeType = 'chain';
+    static TYPE = ShapeType.CHAIN;
 
     m_vertices: Vec2[] = [];
     m_count = 0;
@@ -31,8 +31,7 @@ export class ChainShape extends Shape {
     m_isLoop: boolean;
 
     constructor(vertices?: Vec2[], loop: boolean = false) {
-        super(ChainShape.TYPE);
-        this.m_radius = Settings.polygonRadius;
+        super(ShapeType.CHAIN, Settings.polygonRadius);
         this.m_isLoop = loop;
 
         if (vertices && vertices.length) {
@@ -249,4 +248,4 @@ export class ChainShape extends Shape {
     }
 }
 
-Shape.TYPES[ChainShape.TYPE] = ChainShape;
+Shape.TYPES.set(ShapeType.CHAIN, ChainShape);

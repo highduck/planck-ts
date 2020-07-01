@@ -10,14 +10,13 @@ import {Transform} from "../common/Transform";
 import {RayCastInput, RayCastOutput} from "../collision/RayCastOptions";
 
 export class CircleShape extends Shape {
-    static TYPE: ShapeType = 'circle';
+    static TYPE = ShapeType.CIRCLE;
 
     readonly m_p: Vec2;
 
     // 0, 0, 1
     constructor(x: number, y: number, r: number) {
-        super(CircleShape.TYPE);
-        this.m_radius = r;
+        super(ShapeType.CIRCLE, r);
         this.m_p = new Vec2(x, y);
     }
 
@@ -62,7 +61,7 @@ export class CircleShape extends Shape {
     }
 
     testPoint(xf: Transform, p: Vec2) {
-        const center = Vec2.add(xf.p, Rot.mulVec2(xf.q, this.m_p));
+        const center = Vec2.add(xf, Rot.mulVec2(xf, this.m_p));
         const d = Vec2.sub(p, center);
         return Vec2.dot(d, d) <= this.m_radius * this.m_radius;
     }
@@ -73,7 +72,7 @@ export class CircleShape extends Shape {
 // norm(x) = radius
     rayCast(output: RayCastOutput, input: RayCastInput, xf: Transform, childIndex: number) {
 
-        const position = Vec2.add(xf.p, Rot.mulVec2(xf.q, this.m_p));
+        const position = Vec2.add(xf, Rot.mulVec2(xf, this.m_p));
         const s = Vec2.sub(input.p1, position);
         const b = Vec2.dot(s, s) - this.m_radius * this.m_radius;
 
@@ -105,12 +104,21 @@ export class CircleShape extends Shape {
     }
 
     computeAABB(aabb: AABB, xf: Transform, childIndex: number) {
-        const p = Vec2.add(xf.p, Rot.mulVec2(xf.q, this.m_p));
+        //const p = Vec2.add(xf.p, Rot.mulVec2(xf.q, this.m_p));
+        // const tx = p.x;
+        // const ty = p.y;
+        // INLINE
+        const c = xf.c;
+        const s = xf.s;
+        const x = this.m_p.x;
+        const y = this.m_p.y;
+        const tx = xf.x + c * x - s * y;
+        const ty = xf.y + s * x + c * y;
         const r = this.m_radius;
-        aabb.lx = p.x - r;
-        aabb.ly = p.y - r;
-        aabb.ux = p.x + r;
-        aabb.uy = p.y + r;
+        aabb.lx = tx - r;
+        aabb.ly = ty - r;
+        aabb.ux = tx + r;
+        aabb.uy = ty + r;
     }
 
     computeMass(massData: MassData, density: number) {
@@ -128,4 +136,4 @@ export class CircleShape extends Shape {
     }
 }
 
-Shape.TYPES[CircleShape.TYPE] = CircleShape;
+Shape.TYPES.set(ShapeType.CIRCLE, CircleShape);

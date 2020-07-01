@@ -1,6 +1,5 @@
-import {PolygonShape, Vec2, World} from 'planck-ts-core';
+import {PolygonShape, Vec2, World, MathUtil} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
-import {MathUtil} from "planck-ts-core/dist/common/Math";
 
 testbed('ConvexHull', function (testbed) {
     const world = new World();

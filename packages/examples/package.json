@@ -39,7 +39,7 @@
   ],
   "scripts": {
     "ci": "echo OK",
-    "start": "nodemon src/server.cjs",
+    "start": "node src/server.cjs",
     "clean": "rimraf dist/"
   },
   "devDependencies": {

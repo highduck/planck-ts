@@ -241,12 +241,12 @@ export class PrismaticJoint extends Joint {
         const bA = this.m_bodyA;
         const bB = this.m_bodyB;
 
-        const rA = Rot.mulVec2(bA.m_xf.q, Vec2.sub(this.m_localAnchorA, bA.m_sweep.localCenter)); // Vec2
-        const rB = Rot.mulVec2(bB.m_xf.q, Vec2.sub(this.m_localAnchorB, bB.m_sweep.localCenter)); // Vec2
+        const rA = Rot.mulVec2(bA.m_xf, Vec2.sub(this.m_localAnchorA, bA.m_sweep.localCenter)); // Vec2
+        const rB = Rot.mulVec2(bB.m_xf, Vec2.sub(this.m_localAnchorB, bB.m_sweep.localCenter)); // Vec2
         const p1 = Vec2.add(bA.m_sweep.c, rA); // Vec2
         const p2 = Vec2.add(bB.m_sweep.c, rB); // Vec2
         const d = Vec2.sub(p2, p1); // Vec2
-        const axis = Rot.mulVec2(bA.m_xf.q, this.m_localXAxisA); // Vec2
+        const axis = Rot.mulVec2(bA.m_xf, this.m_localXAxisA); // Vec2
 
         const vA = bA.m_linearVelocity;
         const vB = bB.m_linearVelocity;
@@ -391,23 +391,33 @@ export class PrismaticJoint extends Joint {
         const qB = Rot.forAngle(aB);
 
         // Compute the effective masses.
-        const rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
-        const rB = Rot.mulVec2(qB, Vec2.sub(this.m_localAnchorB, this.m_localCenterB));
-        const d = Vec2.zero();
-        d.addCombine(1, cB, 1, rB);
-        d.subCombine(1, cA, 1, rA);
+        // const rA = Rot.mulVec2(qA, Vec2.sub(this.m_localAnchorA, this.m_localCenterA));
+        // const rB = Rot.mulVec2(qB, Vec2.sub(this.m_localAnchorB, this.m_localCenterB));
+        const rA = Vec2.sub(this.m_localAnchorA, this.m_localCenterA);
+        const rB = Vec2.sub(this.m_localAnchorB, this.m_localCenterB);
+        Rot._mulVec2(qA, rA, rA);
+        Rot._mulVec2(qB, rB, rB);
 
-        const mA = this.m_invMassA, mB = this.m_invMassB;
-        const iA = this.m_invIA, iB = this.m_invIB;
+        // const d = Vec2.zero();
+        // d.addCombine(1, cB, 1, rB);
+        // d.subCombine(1, cA, 1, rA);
+        const d = new Vec2(
+            cB.x + rB.x - cA.x - rA.x,
+            cB.y + rB.y - cA.y - rA.y,
+        );
+
+        const mA = this.m_invMassA;
+        const mB = this.m_invMassB;
+        const iA = this.m_invIA;
+        const iB = this.m_invIB;
 
         // Compute motor Jacobian and effective mass.
         {
-            this.m_axis = Rot.mulVec2(qA, this.m_localXAxisA);
+            Rot._mulVec2(qA, this.m_localXAxisA, this.m_axis);
             this.m_a1 = Vec2.cross(Vec2.add(d, rA), this.m_axis);
             this.m_a2 = Vec2.cross(rB, this.m_axis);
 
-            this.m_motorMass = mA + mB + iA * this.m_a1 * this.m_a1 + iB * this.m_a2
-                * this.m_a2;
+            this.m_motorMass = mA + mB + iA * this.m_a1 * this.m_a1 + iB * this.m_a2 * this.m_a2;
             if (this.m_motorMass > 0.0) {
                 this.m_motorMass = 1.0 / this.m_motorMass;
             }
@@ -415,12 +425,11 @@ export class PrismaticJoint extends Joint {
 
         // Prismatic constraint.
         {
-            this.m_perp = Rot.mulVec2(qA, this.m_localYAxisA);
-
+            Rot._mulVec2(qA, this.m_localYAxisA, this.m_perp);
             this.m_s1 = Vec2.cross(Vec2.add(d, rA), this.m_perp);
             this.m_s2 = Vec2.cross(rB, this.m_perp);
 
-            const s1test = Vec2.cross(rA, this.m_perp);
+            // const s1test = Vec2.cross(rA, this.m_perp);
 
             const k11 = mA + mB + iA * this.m_s1 * this.m_s1 + iB * this.m_s2 * this.m_s2;
             const k12 = iA * this.m_s1 + iB * this.m_s2;
@@ -476,17 +485,21 @@ export class PrismaticJoint extends Joint {
             this.m_impulse.mul(step.dtRatio);
             this.m_motorImpulse *= step.dtRatio;
 
-            const P = Vec2.combine(this.m_impulse.x, this.m_perp, this.m_motorImpulse
-                + this.m_impulse.z, this.m_axis);
-            const LA = this.m_impulse.x * this.m_s1 + this.m_impulse.y
-                + (this.m_motorImpulse + this.m_impulse.z) * this.m_a1;
-            const LB = this.m_impulse.x * this.m_s2 + this.m_impulse.y
-                + (this.m_motorImpulse + this.m_impulse.z) * this.m_a2;
+            // const P = Vec2.combine(this.m_impulse.x, this.m_perp, this.m_motorImpulse + this.m_impulse.z, this.m_axis);
+            const s = this.m_motorImpulse + this.m_impulse.z;
+            const Px = this.m_impulse.x * this.m_perp.x + s * this.m_axis.x;
+            const Py = this.m_impulse.x * this.m_perp.y + s * this.m_axis.y;
 
-            vA.subMul(mA, P);
+            // vA.subMul(mA, P);
+            vA.x -= mA * Px;
+            vA.y -= mA * Py;
+            // vB.addMul(mB, P);
+            vB.x += mB * Px;
+            vB.y += mB * Py;
+
+            const LA = this.m_impulse.x * this.m_s1 + this.m_impulse.y + s * this.m_a1;
+            const LB = this.m_impulse.x * this.m_s2 + this.m_impulse.y + s * this.m_a2;
             wA -= iA * LA;
-
-            vB.addMul(mB, P);
             wB += iB * LB;
         } else {
             this.m_impulse.setZero();

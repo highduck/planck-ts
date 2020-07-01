@@ -1,4 +1,4 @@
-import {Body, BoxShape, EdgeShape, RevoluteJoint, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, EdgeShape, RevoluteJoint, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('Chain', function (testbed) {

@@ -1,4 +1,4 @@
-import {Body, BoxShape, CircleShape, EdgeShape, MathUtil, PolygonShape, Transform, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, CircleShape, EdgeShape, MathUtil, PolygonShape, Transform, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // TODO_ERIN test joints on compounds.

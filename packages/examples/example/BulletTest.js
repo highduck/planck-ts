@@ -1,4 +1,4 @@
-import {Body, BoxShape, EdgeShape, Vec2, World, MathUtil} from 'planck-ts-core';
+import {Body, BoxShape, EdgeShape, Vec2, World, MathUtil} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('BulletTest', function (testbed) {

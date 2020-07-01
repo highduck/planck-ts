@@ -1,4 +1,4 @@
-import {Body, BoxShape, ChainShape, CircleShape, EdgeShape, PolygonShape, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, ChainShape, CircleShape, EdgeShape, PolygonShape, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // This is a test of typical character collision scenarios. This does not

@@ -1,4 +1,4 @@
-import {AABB, MouseJoint, Vec2} from 'planck-ts-core';
+import {AABB, MouseJoint, Vec2, Shape} from 'planck-ts';
 
 const Stage = require('stage-js/platform/web');
 
@@ -429,16 +429,16 @@ Viewer.prototype.renderWorld = function () {
 
                 const type = f.getType();
                 const shape = f.getShape();
-                if (type === 'circle') {
+                if (type === Shape.CIRCLE) {
                     f.ui = viewer.drawCircle(shape, options);
                 }
-                if (type === 'edge') {
+                if (type === Shape.EDGE) {
                     f.ui = viewer.drawEdge(shape, options);
                 }
-                if (type === 'polygon') {
+                if (type === Shape.POLYGON) {
                     f.ui = viewer.drawPolygon(shape, options);
                 }
-                if (type === 'chain') {
+                if (type === Shape.CHAIN) {
                     f.ui = viewer.drawChain(shape, options);
                 }
 

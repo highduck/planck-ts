@@ -14,10 +14,10 @@ import {RayCastInput, RayCastOutput} from "../collision/RayCastOptions";
  * contact normals.
  */
 export class EdgeShape extends Shape {
-    static TYPE: ShapeType = 'edge';
+    static TYPE = ShapeType.EDGE;
 
-    m_vertex1:Vec2;
-    m_vertex2:Vec2;
+    m_vertex1: Vec2;
+    m_vertex2: Vec2;
 
     // Optional adjacent vertices. These are used for smooth collision.
     // Used by chain shape.
@@ -27,8 +27,7 @@ export class EdgeShape extends Shape {
     m_hasVertex3 = false;
 
     constructor(v1?: Vec2, v2?: Vec2) {
-        super(EdgeShape.TYPE);
-        this.m_radius = Settings.polygonRadius;
+        super(ShapeType.EDGE, Settings.polygonRadius);
 
         // These are the edge vertices
         this.m_vertex1 = v1 ? Vec2.clone(v1) : Vec2.zero();
@@ -114,7 +113,7 @@ export class EdgeShape extends Shape {
         return 1;
     }
 
-    testPoint(xf:Transform, p:Vec2) {
+    testPoint(xf: Transform, p: Vec2) {
         return false;
     }
 
@@ -122,12 +121,12 @@ export class EdgeShape extends Shape {
 // v = v1 + s * e
 // p1 + t * d = v1 + s * e
 // s * e - t * d = p1 - v1
-    rayCast(output:RayCastOutput, input:RayCastInput, xf:Transform, childIndex:number) {
+    rayCast(output: RayCastOutput, input: RayCastInput, xf: Transform, childIndex: number) {
         // NOT_USED(childIndex);
 
         // Put the ray into the edge's frame of reference.
-        const p1 = Rot.mulTVec2(xf.q, Vec2.sub(input.p1, xf.p));
-        const p2 = Rot.mulTVec2(xf.q, Vec2.sub(input.p2, xf.p));
+        const p1 = Rot.mulTVec2(xf, Vec2.sub(input.p1, xf));
+        const p2 = Rot.mulTVec2(xf, Vec2.sub(input.p2, xf));
         const d = Vec2.sub(p2, p1);
 
         const v1 = this.m_vertex1;
@@ -168,14 +167,14 @@ export class EdgeShape extends Shape {
 
         output.fraction = t;
         if (numerator > 0.0) {
-            output.normal = Rot.mulVec2(xf.q, normal).neg();
+            output.normal = Rot.mulVec2(xf, normal).neg();
         } else {
-            output.normal = Rot.mulVec2(xf.q, normal);
+            output.normal = Rot.mulVec2(xf, normal);
         }
         return true;
     }
 
-    computeAABB(aabb:AABB, xf:Transform, childIndex:number) {
+    computeAABB(aabb: AABB, xf: Transform, childIndex: number) {
         const v1 = Transform.mulVec2(xf, this.m_vertex1);
         const v2 = Transform.mulVec2(xf, this.m_vertex2);
 
@@ -183,13 +182,13 @@ export class EdgeShape extends Shape {
         aabb.extend(this.m_radius)
     }
 
-    computeMass(massData:MassData, density:number) {
+    computeMass(massData: MassData, density: number) {
         massData.mass = 0.0;
         massData.center.setCombine(0.5, this.m_vertex1, 0.5, this.m_vertex2);
         massData.I = 0.0;
     }
 
-    computeDistanceProxy(proxy:DistanceProxy) {
+    computeDistanceProxy(proxy: DistanceProxy) {
         proxy.m_vertices.push(this.m_vertex1);
         proxy.m_vertices.push(this.m_vertex2);
         proxy.m_count = 2;
@@ -197,4 +196,4 @@ export class EdgeShape extends Shape {
     }
 }
 
-Shape.TYPES[EdgeShape.TYPE] = EdgeShape;
+Shape.TYPES.set(ShapeType.EDGE, EdgeShape);

@@ -1,4 +1,4 @@
-import {Body, BoxShape, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // This stress tests the dynamic tree broad-phase. This also shows that tile

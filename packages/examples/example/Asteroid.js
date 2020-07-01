@@ -1,4 +1,4 @@
-import {Body, CircleShape, PolygonShape, Vec2, World} from 'planck-ts-core';
+import {Body, CircleShape, PolygonShape, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('Asteroid', function (testbed) {

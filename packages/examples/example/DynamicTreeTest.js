@@ -1,7 +1,5 @@
-import {DynamicTree, Vec2, World} from 'planck-ts-core';
+import {AABB, DynamicTree, MathUtil, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
-import {AABB} from "planck-ts-core/dist/collision/AABB";
-import {MathUtil} from "planck-ts-core/dist/common/Math";
 
 testbed('DynamicTreeTest', function (testbed) {
     const world = new World();

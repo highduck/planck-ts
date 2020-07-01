@@ -103,10 +103,8 @@ export class AABB {
     }
 
     contains(aabb: AABB) {
-        return this.lx <= aabb.lx &&
-            this.ly <= aabb.ly &&
-            aabb.ux <= this.ux &&
-            aabb.uy <= this.uy;
+        return this.lx <= aabb.lx && this.ly <= aabb.ly &&
+            aabb.ux <= this.ux && aabb.uy <= this.uy;
     }
 
     extend(value: number) {

@@ -7,9 +7,10 @@ import {Transform} from "../common/Transform";
 import {Vec2} from "../common/Vec2";
 import {ContactFeatureType, Manifold, ManifoldType} from "../Manifold";
 import {Fixture} from "../Fixture";
+import {ShapeType} from "../Shape";
 
-Contact.addType(EdgeShape.TYPE, CircleShape.TYPE, EdgeCircleContact);
-Contact.addType(ChainShape.TYPE, CircleShape.TYPE, ChainCircleContact);
+Contact.addType(ShapeType.EDGE, ShapeType.CIRCLE, EdgeCircleContact);
+Contact.addType(ShapeType.CHAIN, ShapeType.CIRCLE, ChainCircleContact);
 
 function EdgeCircleContact(manifold: Manifold,
                            xfA: Transform, fixtureA: Fixture, indexA: number,

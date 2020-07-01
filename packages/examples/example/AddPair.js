@@ -1,4 +1,4 @@
-import {Body, BoxShape, CircleShape, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, CircleShape, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 import {MathUtil} from "planck-ts";
 

@@ -38,12 +38,9 @@ function mixRestitution(restitution1: number, restitution2: number): number {
     return restitution1 > restitution2 ? restitution1 : restitution2;
 }
 
+const s_vec2_0 = new Vec2(0, 0);
 const s_worldManifold = new WorldManifold();
-const s_registers: {
-    [t1: string]: {
-        [t2: string]: EvaluateFunction
-    }
-} = {};
+const s_registers = new Map<number, EvaluateFunction>();
 
 /**
  * A contact edge is used to connect bodies and contacts together in a contact
@@ -512,13 +509,13 @@ export class Contact {
         const bodyA = fixtureA.getBody();
         const bodyB = fixtureB.getBody();
 
-        const velocityA = bodyA.c_velocity;
-        const velocityB = bodyB.c_velocity;
+        // const velocityA = bodyA.c_velocity;
+        // const velocityB = bodyB.c_velocity;
         const positionA = bodyA.c_position;
         const positionB = bodyB.c_position;
 
-        const localCenterA = Vec2.clone(this.p_localCenterA);
-        const localCenterB = Vec2.clone(this.p_localCenterB);
+        // const localCenterA = Vec2.clone(this.p_localCenterA);
+        // const localCenterB = Vec2.clone(this.p_localCenterB);
 
         let mA = 0.0;
         let iA = 0.0;
@@ -534,22 +531,26 @@ export class Contact {
             iB = this.p_invIB;
         }
 
-        const cA = Vec2.clone(positionA.c);
+        // const cA = Vec2.clone(positionA.c);
+        const cA = positionA.c;
         let aA = positionA.a;
 
-        const cB = Vec2.clone(positionB.c);
+        // const cB = Vec2.clone(positionB.c);
+        const cB = positionB.c;
         let aB = positionB.a;
 
         let minSeparation = 0.0;
 
         // Solve normal constraints
         for (let j = 0; j < this.p_pointCount; ++j) {
-            const xfA = Transform.identity();
-            const xfB = Transform.identity();
-            xfA.q.setAngle(aA);
-            xfB.q.setAngle(aB);
-            xfA.p = Vec2.sub(cA, Rot.mulVec2(xfA.q, localCenterA));
-            xfB.p = Vec2.sub(cB, Rot.mulVec2(xfB.q, localCenterB));
+            const xfA = Transform.angle(aA);
+            const xfB = Transform.angle(aB);
+            // Vec2._sub(cA, Rot.mulVec2(xfA, localCenterA), xfA);
+            // Vec2._sub(cB, Rot.mulVec2(xfB, localCenterB), xfB);
+            Rot._mulVec2(xfA, this.p_localCenterA, xfA);
+            Rot._mulVec2(xfB, this.p_localCenterB, xfB);
+            Vec2._sub(cA, xfA, xfA);
+            Vec2._sub(cB, xfB, xfB);
 
             // PositionSolverManifold
             let normal: Vec2;
@@ -563,13 +564,13 @@ export class Contact {
                 point = Vec2.combine(0.5, pointA, 0.5, pointB);
                 separation = Vec2.dot(Vec2.sub(pointB, pointA), normal) - this.p_radiusA - this.p_radiusB;
             } else if (this.p_type === ManifoldType.e_faceA) {
-                normal = Rot.mulVec2(xfA.q, this.p_localNormal);
+                normal = Rot.mulVec2(xfA, this.p_localNormal);
                 const planePoint = Transform.mulVec2(xfA, this.p_localPoint);
                 const clipPoint = Transform.mulVec2(xfB, this.p_localPoints[j]);
                 separation = Vec2.dot(Vec2.sub(clipPoint, planePoint), normal) - this.p_radiusA - this.p_radiusB;
                 point = clipPoint;
             } else if (this.p_type === ManifoldType.e_faceB) {
-                normal = Rot.mulVec2(xfB.q, this.p_localNormal);
+                normal = Rot.mulVec2(xfB, this.p_localNormal);
                 const planePoint = Transform.mulVec2(xfB, this.p_localPoint);
                 const clipPoint = Transform.mulVec2(xfA, this.p_localPoints[j]);
                 separation = Vec2.dot(Vec2.sub(clipPoint, planePoint), normal) - this.p_radiusA - this.p_radiusB;
@@ -601,7 +602,10 @@ export class Contact {
             // Compute normal impulse
             const impulse = K > 0.0 ? -C / K : 0.0;
 
-            const P = Vec2.mul(impulse, normal!);
+            // const P = Vec2.mul(impulse, normal!);
+            // OPTIMIZATION
+            const P = normal!;
+            P.mul(impulse);
 
             cA.subMul(mA, P);
             aA -= iA * Vec2.cross(rA, P);
@@ -610,10 +614,10 @@ export class Contact {
             aB += iB * Vec2.cross(rB, P);
         }
 
-        positionA.c.copyFrom(cA);
+        // positionA.c.copyFrom(cA);
         positionA.a = aA;
 
-        positionB.c.copyFrom(cB);
+        // positionB.c.copyFrom(cB);
         positionB.a = aB;
 
         return minSeparation;
@@ -640,8 +644,6 @@ export class Contact {
         const mB = this.v_invMassB;
         const iA = this.v_invIA;
         const iB = this.v_invIB;
-        const localCenterA = Vec2.clone(this.p_localCenterA);
-        const localCenterB = Vec2.clone(this.p_localCenterB);
 
         const cA = positionA.c;
         const aA = positionA.a;
@@ -655,12 +657,24 @@ export class Contact {
 
         PLANCK_ASSERT && assert(manifold.pointCount > 0);
 
-        const xfA = Transform.identity();
-        const xfB = Transform.identity();
-        xfA.q.setAngle(aA);
-        xfB.q.setAngle(aB);
-        xfA.p.setCombine(1, cA, -1, Rot.mulVec2(xfA.q, localCenterA));
-        xfB.p.setCombine(1, cB, -1, Rot.mulVec2(xfB.q, localCenterB));
+        // const xfA = Transform.identity();
+        // const xfB = Transform.identity();
+        // xfA.q.setAngle(aA);
+        // xfB.q.setAngle(aB);
+        // xfA.p.setCombine(1, cA, -1, Rot.mulVec2(xfA, localCenterA));
+        // xfB.p.setCombine(1, cB, -1, Rot.mulVec2(xfB, localCenterB));
+        const xfA = Transform.angle(aA);
+        const xfB = Transform.angle(aB);
+        // Vec2._sub(cA, Rot.mulVec2(xfA, localCenterA), xfA);
+        // Vec2._sub(cB, Rot.mulVec2(xfB, localCenterB), xfB);
+
+        // Vec2._sub(cA, Rot.mulVec2(xfA, localCenterA), xfA);
+        Rot._mulVec2(xfA, this.p_localCenterA, xfA);
+        Vec2._sub(cA, xfA, xfA);
+
+        // Vec2._sub(cB, Rot.mulVec2(xfB, localCenterB), xfB);
+        Rot._mulVec2(xfB, this.p_localCenterB, xfB);
+        Vec2._sub(cB, xfB, xfB);
 
         // const worldManifold = new WorldManifold();
         const worldManifold = s_worldManifold;
@@ -813,7 +827,7 @@ export class Contact {
         let wB = velocityB.w;
 
         const normal = this.v_normal;
-        const tangent = Vec2.crossVS(normal, 1.0);
+        //const tangent = Vec2.crossVS(normal, 1.0);
         const friction = this.v_friction;
 
         PLANCK_ASSERT && assert(this.v_pointCount === 1 || this.v_pointCount === 2);
@@ -822,6 +836,10 @@ export class Contact {
         // than friction.
         for (let j = 0; j < this.v_pointCount; ++j) {
             const vcp = this.v_points[j]; // VelocityConstraintPoint
+
+            // OPTIMIZATION
+            const tangent = s_vec2_0;
+            Vec2._crossVS(normal, 1.0, tangent);
 
             // Relative velocity at contact
             const dvx = vB.x - wB * vcp.rB.y - vA.x + wA * vcp.rA.y;
@@ -842,7 +860,13 @@ export class Contact {
             vcp.tangentImpulse = newImpulse;
 
             // Apply contact impulse
-            const P = Vec2.mul(lambda, tangent);
+
+            // const P = Vec2.mul(lambda, tangent);
+
+            // OPTIMIZATION
+            // reuse `tangent`
+            const P = tangent;
+            P.mul(lambda);
 
             vA.subMul(mA, P);
             wA -= iA * Vec2.cross(vcp.rA, P);
@@ -860,9 +884,16 @@ export class Contact {
                 const dv = Vec2.zero();
                 dv.addCombine(1, vB, 1, Vec2.crossSV(wB, vcp.rB));
                 dv.subCombine(1, vA, 1, Vec2.crossSV(wA, vcp.rA));
+                // TODO: optimize
+                // const dvx = vB.x - wB * vcp.rB.y - vA.x + wA * vcp.rA.y;
+                // const dvy = vB.y + wB * vcp.rB.x - vA.y - wA * vcp.rA.x;
+                const dvx = dv.x;
+                const dvy = dv.y;
 
                 // Compute normal impulse
                 const vn = Vec2.dot(dv, normal);
+                // const vn = dvx * normal.x + dvy * normal.y;
+
                 let lambda = -vcp.normalMass * (vn - vcp.velocityBias);
 
                 // Clamp the accumulated impulse
@@ -871,7 +902,11 @@ export class Contact {
                 vcp.normalImpulse = newImpulse;
 
                 // Apply contact impulse
-                const P = Vec2.mul(lambda, normal);
+                // const P = Vec2.mul(lambda, normal);
+                // optimization
+                const P = s_vec2_0;
+                P.x = lambda * normal.x;
+                P.y = lambda * normal.y;
 
                 vA.subMul(mA, P);
                 wA -= iA * Vec2.cross(vcp.rA, P);
@@ -924,23 +959,42 @@ export class Contact {
             const vcp1 = this.v_points[0]; // VelocityConstraintPoint
             const vcp2 = this.v_points[1]; // VelocityConstraintPoint
 
-            const a = new Vec2(vcp1.normalImpulse, vcp2.normalImpulse);
-            PLANCK_ASSERT && assert(a.x >= 0.0 && a.y >= 0.0);
+            // const a = new Vec2(vcp1.normalImpulse, vcp2.normalImpulse);
+            // PLANCK_ASSERT && assert(a.x >= 0.0 && a.y >= 0.0);
+            // optimization
+            const ax = vcp1.normalImpulse;
+            const ay = vcp2.normalImpulse;
+            PLANCK_ASSERT && assert(ax >= 0.0 && ay >= 0.0);
 
             // Relative velocity at contact
-            let dv1 = vB.clone().add(Vec2.crossSV(wB, vcp1.rB)).sub(vA).sub(Vec2.crossSV(wA, vcp1.rA));
-            let dv2 = vB.clone().add(Vec2.crossSV(wB, vcp2.rB)).sub(vA).sub(Vec2.crossSV(wA, vcp2.rA));
+            // let dv1 = vB.clone().add(Vec2.crossSV(wB, vcp1.rB)).sub(vA).sub(Vec2.crossSV(wA, vcp1.rA));
+            // let dv2 = vB.clone().add(Vec2.crossSV(wB, vcp2.rB)).sub(vA).sub(Vec2.crossSV(wA, vcp2.rA));
+            // optimization:
+            //   Vec2.crossSV(wB, vcp1.rB) => (-wB * vcp1.rB.y, wB * vcp1.rB.x)
+            //   Vec2.crossSV(wA, vcp1.rA) => (-wA * vcp1.rA.y, wA * vcp1.rA.x)
+            const dv1x = vB.x - wB * vcp1.rB.y - vA.x + wA * vcp1.rA.y;
+            const dv1y = vB.y + wB * vcp1.rB.x - vA.y - wA * vcp1.rA.x;
+            const dv2x = vB.x - wB * vcp2.rB.y - vA.x + wA * vcp2.rA.y;
+            const dv2y = vB.y + wB * vcp2.rB.x - vA.y - wA * vcp2.rA.x;
 
             // Compute normal velocity
-            let vn1 = Vec2.dot(dv1, normal);
-            let vn2 = Vec2.dot(dv2, normal);
+            // let vn1 = Vec2.dot(dv1, normal);
+            // let vn2 = Vec2.dot(dv2, normal);
+            // optimization:
+            let vn1 = dv1x * normal.x + dv1y * normal.y;
+            let vn2 = dv2x * normal.x + dv2y * normal.y;
 
-            const b = new Vec2(vn1 - vcp1.velocityBias, vn2 - vcp2.velocityBias);
+            // const b = new Vec2(vn1 - vcp1.velocityBias, vn2 - vcp2.velocityBias);
 
             // Compute b'
-            b.sub(Mat22.mulVec2(this.v_K, a));
+            // b.sub(Mat22.mulVec2(this.v_K, a));
 
-            const k_errorTol = 1e-3;
+            // optimization:
+            //   Mat22.mulVec2(this.v_K, a) => this.v_K.a * ax + this.v_K.b * ay, this.v_K.c * ax + this.v_K.d * ay
+            const bx = vn1 - vcp1.velocityBias - this.v_K.a * ax - this.v_K.b * ay;
+            const by = vn2 - vcp2.velocityBias - this.v_K.c * ax - this.v_K.d * ay;
+
+            // const k_errorTol = 1e-3;
             // NOT_USED(k_errorTol);
 
             for (; ;) {
@@ -953,50 +1007,72 @@ export class Contact {
                 //
                 // x = - inv(A) * b'
                 //
-                const x = Mat22.mulVec2(this.v_normalMass, b).neg();
+                // const x = Mat22.mulVec2(this.v_normalMass, b).neg();
+                // optimization:
+                //     Mat22.mulVec2(this.v_normalMass, b) =>
+                //     x: this.v_normalMass.a * bx + this.v_normalMass.b * by
+                //     y: this.v_normalMass.c * bx + this.v_normalMass.d * by
+                let xx = -this.v_normalMass.a * bx - this.v_normalMass.b * by;
+                let xy = -this.v_normalMass.c * bx - this.v_normalMass.d * by;
 
-                if (x.x >= 0.0 && x.y >= 0.0) {
+                if (xx >= 0.0 && xy >= 0.0) {
                     // Get the incremental impulse
-                    const d = Vec2.sub(x, a);
+                    // const d = Vec2.sub(x, a);
+                    // const d = new Vec2(xx - ax, xy - ay);
 
                     // Apply incremental impulse
-                    const P1 = Vec2.mul(d.x, normal);
-                    const P2 = Vec2.mul(d.y, normal);
+                    // const P1 = Vec2.mul(d.x, normal);
+                    // const P2 = Vec2.mul(d.y, normal);
 
-                    vA.subCombine(mA, P1, mA, P2);
-                    wA -= iA * (Vec2.cross(vcp1.rA, P1) + Vec2.cross(vcp2.rA, P2));
+                    // TODO: optimize
+                    const P1x = normal.x * (xx - ax);
+                    const P1y = normal.y * (xx - ax);
+                    const P2x = normal.x * (xy - ay);
+                    const P2y = normal.y * (xy - ay);
 
-                    vB.addCombine(mB, P1, mB, P2);
-                    wB += iB * (Vec2.cross(vcp1.rB, P1) + Vec2.cross(vcp2.rB, P2));
+                    // vA.subCombine(mA, P1, mA, P2);
+                    // vB.addCombine(mB, P1, mB, P2);
+                    // TODO: optimize
+                    vA.x -= mA * (P1x + P2x);
+                    vA.y -= mA * (P1y + P2y);
+                    vB.x += mB * (P1x + P2x);
+                    vB.y += mB * (P1y + P2y);
+
+                    // wA -= iA * (Vec2.cross(vcp1.rA, P1) + Vec2.cross(vcp2.rA, P2));
+                    // wB += iB * (Vec2.cross(vcp1.rB, P1) + Vec2.cross(vcp2.rB, P2));
+                    // Optimization
+                    wA -= iA * (vcp1.rA.x * P1y - vcp1.rA.y * P1x + vcp2.rA.x * P2y - vcp2.rA.y * P2x);
+                    wB += iB * (vcp1.rB.x * P1y - vcp1.rB.y * P1x + vcp2.rB.x * P2y - vcp2.rB.y * P2x);
 
                     // Accumulate
-                    vcp1.normalImpulse = x.x;
-                    vcp2.normalImpulse = x.y;
+                    vcp1.normalImpulse = xx;
+                    vcp2.normalImpulse = xy;
 
-                    if (DEBUG_SOLVER) {
-                        // Postconditions
-                        dv1 = Vec2.add(
-                            vB,
-                            Vec2.sub(
-                                Vec2.crossSV(wB, vcp1.rB),
-                                Vec2.add(vA, Vec2.crossSV(wA, vcp1.rA))
-                            )
-                        );
-                        dv2 = Vec2.add(
-                            vB,
-                            Vec2.sub(
-                                Vec2.crossSV(wB, vcp2.rB),
-                                Vec2.add(vA, Vec2.crossSV(wA, vcp2.rA))
-                            )
-                        );
-
-                        // Compute normal velocity
-                        vn1 = Vec2.dot(dv1, normal);
-                        vn2 = Vec2.dot(dv2, normal);
-
-                        PLANCK_ASSERT && assert(Math.abs(vn1 - vcp1.velocityBias) < k_errorTol);
-                        PLANCK_ASSERT && assert(Math.abs(vn2 - vcp2.velocityBias) < k_errorTol);
-                    }
+                    // TODO
+                    // if (DEBUG_SOLVER) {
+                    //     // Postconditions
+                    //     dv1 = Vec2.add(
+                    //         vB,
+                    //         Vec2.sub(
+                    //             Vec2.crossSV(wB, vcp1.rB),
+                    //             Vec2.add(vA, Vec2.crossSV(wA, vcp1.rA))
+                    //         )
+                    //     );
+                    //     dv2 = Vec2.add(
+                    //         vB,
+                    //         Vec2.sub(
+                    //             Vec2.crossSV(wB, vcp2.rB),
+                    //             Vec2.add(vA, Vec2.crossSV(wA, vcp2.rA))
+                    //         )
+                    //     );
+                    //
+                    //     // Compute normal velocity
+                    //     vn1 = Vec2.dot(dv1, normal);
+                    //     vn2 = Vec2.dot(dv2, normal);
+                    //
+                    //     PLANCK_ASSERT && assert(Math.abs(vn1 - vcp1.velocityBias) < k_errorTol);
+                    //     PLANCK_ASSERT && assert(Math.abs(vn2 - vcp2.velocityBias) < k_errorTol);
+                    // }
                     break;
                 }
 
@@ -1006,39 +1082,52 @@ export class Contact {
                 // 0 = a11 * x1 + a12 * 0 + b1'
                 // vn2 = a21 * x1 + a22 * 0 + b2'
                 //
-                x.x = -vcp1.normalMass * b.x;
-                x.y = 0.0;
+                xx = -vcp1.normalMass * bx;
+                xy = 0.0;
                 vn1 = 0.0;
-                vn2 = this.v_K.c * x.x + b.y;
+                vn2 = this.v_K.c * xx + by;
 
-                if (x.x >= 0.0 && vn2 >= 0.0) {
+                if (xx >= 0.0 && vn2 >= 0.0) {
                     // Get the incremental impulse
-                    const d = Vec2.sub(x, a);
+                    // const d = Vec2.sub(x, a);
 
                     // Apply incremental impulse
-                    const P1 = Vec2.mul(d.x, normal);
-                    const P2 = Vec2.mul(d.y, normal);
-                    vA.subCombine(mA, P1, mA, P2);
-                    wA -= iA * (Vec2.cross(vcp1.rA, P1) + Vec2.cross(vcp2.rA, P2));
+                    // const P1 = Vec2.mul(d.x, normal);
+                    // const P2 = Vec2.mul(d.y, normal);
 
-                    vB.addCombine(mB, P1, mB, P2);
-                    wB += iB * (Vec2.cross(vcp1.rB, P1) + Vec2.cross(vcp2.rB, P2));
+                    const P1x = normal.x * (xx - ax);
+                    const P1y = normal.y * (xx - ax);
+                    const P2x = normal.x * (xy - ay);
+                    const P2y = normal.y * (xy - ay);
+
+                    // vA.subCombine(mA, P1, mA, P2);
+                    // vB.addCombine(mB, P1, mB, P2);
+                    vA.x -= mA * (P1x + P2x);
+                    vA.y -= mA * (P1y + P2y);
+                    vB.x += mB * (P1x + P2x);
+                    vB.y += mB * (P1y + P2y);
+
+                    // wA -= iA * (Vec2.cross(vcp1.rA, P1) + Vec2.cross(vcp2.rA, P2));
+                    // wB += iB * (Vec2.cross(vcp1.rB, P1) + Vec2.cross(vcp2.rB, P2));
+                    wA -= iA * (vcp1.rA.x * P1y - vcp1.rA.y * P1x + vcp2.rA.x * P2y - vcp2.rA.y * P2x);
+                    wB += iB * (vcp1.rB.x * P1y - vcp1.rB.y * P1x + vcp2.rB.x * P2y - vcp2.rB.y * P2x);
 
                     // Accumulate
-                    vcp1.normalImpulse = x.x;
-                    vcp2.normalImpulse = x.y;
+                    vcp1.normalImpulse = xx;
+                    vcp2.normalImpulse = xy;
 
-                    if (DEBUG_SOLVER) {
-                        // Postconditions
-                        const dv1B = Vec2.add(vB, Vec2.crossSV(wB, vcp1.rB));
-                        const dv1A = Vec2.add(vA, Vec2.crossSV(wA, vcp1.rA));
-                        const dv1 = Vec2.sub(dv1B, dv1A);
-
-                        // Compute normal velocity
-                        vn1 = Vec2.dot(dv1, normal);
-
-                        PLANCK_ASSERT && assert(Math.abs(vn1 - vcp1.velocityBias) < k_errorTol);
-                    }
+                    // TODO
+                    // if (DEBUG_SOLVER) {
+                    //     // Postconditions
+                    //     const dv1B = Vec2.add(vB, Vec2.crossSV(wB, vcp1.rB));
+                    //     const dv1A = Vec2.add(vA, Vec2.crossSV(wA, vcp1.rA));
+                    //     const dv1 = Vec2.sub(dv1B, dv1A);
+                    //
+                    //     // Compute normal velocity
+                    //     vn1 = Vec2.dot(dv1, normal);
+                    //
+                    //     PLANCK_ASSERT && assert(Math.abs(vn1 - vcp1.velocityBias) < k_errorTol);
+                    // }
                     break;
                 }
 
@@ -1048,39 +1137,54 @@ export class Contact {
                 // vn1 = a11 * 0 + a12 * x2 + b1'
                 // 0 = a21 * 0 + a22 * x2 + b2'
                 //
-                x.x = 0.0;
-                x.y = -vcp2.normalMass * b.y;
-                vn1 = this.v_K.b * x.y + b.x;
+                xx = 0.0;
+                xy = -vcp2.normalMass * by;
+                vn1 = this.v_K.b * xy + bx;
                 vn2 = 0.0;
 
-                if (x.y >= 0.0 && vn1 >= 0.0) {
+                if (xy >= 0.0 && vn1 >= 0.0) {
                     // Resubstitute for the incremental impulse
-                    const d = Vec2.sub(x, a);
+                    // const d = Vec2.sub(x, a);
 
                     // Apply incremental impulse
-                    const P1 = Vec2.mul(d.x, normal);
-                    const P2 = Vec2.mul(d.y, normal);
-                    vA.subCombine(mA, P1, mA, P2);
-                    wA -= iA * (Vec2.cross(vcp1.rA, P1) + Vec2.cross(vcp2.rA, P2));
+                    // const P1 = Vec2.mul(d.x, normal);
+                    // const P2 = Vec2.mul(d.y, normal);
 
-                    vB.addCombine(mB, P1, mB, P2);
-                    wB += iB * (Vec2.cross(vcp1.rB, P1) + Vec2.cross(vcp2.rB, P2));
+                    const P1x = normal.x * (xx - ax);
+                    const P1y = normal.y * (xx - ax);
+                    const P2x = normal.x * (xy - ay);
+                    const P2y = normal.y * (xy - ay);
+
+                    // vA.subCombine(mA, P1, mA, P2);
+                    vA.x -= mA * (P1x + P2x);
+                    vA.y -= mA * (P1y + P2y);
+
+                    // vB.addCombine(mB, P1, mB, P2);
+                    vB.x += mB * (P1x + P2x);
+                    vB.y += mB * (P1y + P2y);
+
+                    // wA -= iA * (Vec2.cross(vcp1.rA, P1) + Vec2.cross(vcp2.rA, P2));
+                    wA -= iA * (vcp1.rA.x * P1y - vcp1.rA.y * P1x + vcp2.rA.x * P2y - vcp2.rA.y * P2x);
+
+                    // wB += iB * (Vec2.cross(vcp1.rB, P1) + Vec2.cross(vcp2.rB, P2));
+                    wB += iB * (vcp1.rB.x * P1y - vcp1.rB.y * P1x + vcp2.rB.x * P2y - vcp2.rB.y * P2x);
 
                     // Accumulate
-                    vcp1.normalImpulse = x.x;
-                    vcp2.normalImpulse = x.y;
+                    vcp1.normalImpulse = xx;
+                    vcp2.normalImpulse = xy;
 
-                    if (DEBUG_SOLVER) {
-                        // Postconditions
-                        const dv2B = Vec2.add(vB, Vec2.crossSV(wB, vcp2.rB));
-                        const dv2A = Vec2.add(vA, Vec2.crossSV(wA, vcp2.rA));
-                        const dv1 = Vec2.sub(dv2B, dv2A);
-
-                        // Compute normal velocity
-                        vn2 = Vec2.dot(dv2, normal);
-
-                        PLANCK_ASSERT && assert(Math.abs(vn2 - vcp2.velocityBias) < k_errorTol);
-                    }
+                    // TODO:
+                    // if (DEBUG_SOLVER) {
+                    //     // Postconditions
+                    //     const dv2B = Vec2.add(vB, Vec2.crossSV(wB, vcp2.rB));
+                    //     const dv2A = Vec2.add(vA, Vec2.crossSV(wA, vcp2.rA));
+                    //     const dv1 = Vec2.sub(dv2B, dv2A);
+                    //
+                    //     // Compute normal velocity
+                    //     vn2 = Vec2.dot(dv2, normal);
+                    //
+                    //     PLANCK_ASSERT && assert(Math.abs(vn2 - vcp2.velocityBias) < k_errorTol);
+                    // }
                     break;
                 }
 
@@ -1090,28 +1194,45 @@ export class Contact {
                 // vn1 = b1
                 // vn2 = b2;
                 //
-                x.x = 0.0;
-                x.y = 0.0;
-                vn1 = b.x;
-                vn2 = b.y;
+                xx = 0.0;
+                xy = 0.0;
+                vn1 = bx;
+                vn2 = by;
 
                 if (vn1 >= 0.0 && vn2 >= 0.0) {
                     // Resubstitute for the incremental impulse
-                    const d = Vec2.sub(x, a);
+                    // const d = Vec2.sub(x, a);
 
                     // Apply incremental impulse
-                    const P1 = Vec2.mul(d.x, normal);
-                    const P2 = Vec2.mul(d.y, normal);
-                    vA.subCombine(mA, P1, mA, P2);
-                    wA -= iA * (Vec2.cross(vcp1.rA, P1) + Vec2.cross(vcp2.rA, P2));
+                    // const P1 = Vec2.mul(d.x, normal);
+                    // const P2 = Vec2.mul(d.y, normal);
 
-                    vB.addCombine(mB, P1, mB, P2);
-                    wB += iB * (Vec2.cross(vcp1.rB, P1) + Vec2.cross(vcp2.rB, P2));
+                    const P1x = normal.x * (xx - ax);
+                    const P1y = normal.y * (xx - ax);
+                    const P2x = normal.x * (xy - ay);
+                    const P2y = normal.y * (xy - ay);
+
+                    // vA.subCombine(mA, P1, mA, P2);
+                    vA.x -= mA * (P1x + P2x);
+                    vA.y -= mA * (P1y + P2y);
+
+                    // vB.addCombine(mB, P1, mB, P2);
+                    vB.x += mB * (P1x + P2x);
+                    vB.y += mB * (P1y + P2y);
+
+                    // wA -= iA * (Vec2.cross(vcp1.rA, P1) + Vec2.cross(vcp2.rA, P2));
+                    //   Vec2.cross(vcp1.rA, P1) => vcp1.rA.x * P1.y - vcp1.rA.y * P1.x
+                    //   Vec2.cross(vcp2.rA, P2) => vcp2.rA.x * P2.y - vcp2.rA.y * P2.x
+                    wA -= iA * (vcp1.rA.x * P1y - vcp1.rA.y * P1x + vcp2.rA.x * P2y - vcp2.rA.y * P2x);
+
+                    // wB += iB * (Vec2.cross(vcp1.rB, P1) + Vec2.cross(vcp2.rB, P2));
+                    //   Vec2.cross(vcp1.rB, P1) => vcp1.rB.x * P1.y - vcp1.rB.y * P1.x
+                    //   Vec2.cross(vcp2.rB, P2) => vcp1.rB.x * P2.y - vcp1.rB.y * P2.x
+                    wB += iB * (vcp1.rB.x * P1y - vcp1.rB.y * P1x + vcp2.rB.x * P2y - vcp2.rB.y * P2x);
 
                     // Accumulate
-                    vcp1.normalImpulse = x.x;
-                    vcp2.normalImpulse = x.y;
-
+                    vcp1.normalImpulse = xx;
+                    vcp2.normalImpulse = xy;
                     break;
                 }
 
@@ -1129,21 +1250,20 @@ export class Contact {
     }
 
     static addType(type1: ShapeType, type2: ShapeType, callback: EvaluateFunction) {
-        s_registers[type1] = s_registers[type1] || {};
-        s_registers[type1][type2] = callback;
+        s_registers.set((type1 << 4) | type2, callback);
     }
 
-    static create(fixtureA: Fixture, indexA: number, fixtureB: Fixture, indexB: number) {
+    static create(fixtureA: Fixture, indexA: number, fixtureB: Fixture, indexB: number): Contact | null {
         const typeA = fixtureA.getType(); // Shape.Type
         const typeB = fixtureB.getType(); // Shape.Type
 
         // TODO: pool contacts
         let contact: Contact | undefined;
-        let evaluateFcn: EvaluateFunction | undefined = s_registers[typeA] && s_registers[typeA][typeB];
-        if (evaluateFcn) {
+        let evaluateFcn: EvaluateFunction | undefined = s_registers.get((typeA << 4) | typeB);
+        if (evaluateFcn !== undefined) {
             contact = new Contact(fixtureA, indexA, fixtureB, indexB, evaluateFcn);
         } else {
-            evaluateFcn = evaluateFcn = s_registers[typeB] && s_registers[typeB][typeA];
+            evaluateFcn = s_registers.get((typeB << 4) | typeA);
             if (evaluateFcn) {
                 contact = new Contact(fixtureB, indexB, fixtureA, indexA, evaluateFcn);
             } else {

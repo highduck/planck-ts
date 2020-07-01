@@ -420,9 +420,9 @@ export class World {
         }
 
         for (let b = this.m_bodyList; b; b = b.m_next) {
-            b.m_xf.p.sub(newOrigin);
-            b.m_sweep.c0.sub(newOrigin);
-            b.m_sweep.c.sub(newOrigin);
+            Vec2._sub(b.m_xf, newOrigin, b.m_xf);
+            Vec2._sub(b.m_sweep.c0, newOrigin, b.m_sweep.c0);
+            Vec2._sub(b.m_sweep.c, newOrigin, b.m_sweep.c);
         }
 
         for (let j = this.m_jointList; j; j = j.m_next) {

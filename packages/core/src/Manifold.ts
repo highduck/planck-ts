@@ -95,7 +95,7 @@ export class Manifold {
             const pointA = Transform.mulVec2(xfA, this.localPoint);
             const pointB = Transform.mulVec2(xfB, this.points[0].localPoint);
             const dist = Vec2.sub(pointB, pointA);
-            if (Vec2.lengthSquared(dist) > MathUtil.SQUARED_EPSILON) {
+            if (dist.lengthSquared() > MathUtil.SQUARED_EPSILON) {
                 normal.copyFrom(dist);
                 normal.normalize();
             }
@@ -106,7 +106,7 @@ export class Manifold {
             points.length = 1;
             separations.length = 1;
         } else if (this.type === ManifoldType.e_faceA) {
-            Rot._mulVec2(xfA.q, this.localNormal, normal);
+            Rot._mulVec2(xfA, this.localNormal, normal);
             const planePoint = Transform.mulVec2(xfA, this.localPoint);
 
             for (let i = 0; i < this.pointCount; ++i) {
@@ -119,7 +119,7 @@ export class Manifold {
             points.length = this.pointCount;
             separations.length = this.pointCount;
         } else if (this.type === ManifoldType.e_faceB) {
-            Rot._mulVec2(xfB.q, this.localNormal, normal);
+            Rot._mulVec2(xfB, this.localNormal, normal);
             const planePoint = Transform.mulVec2(xfB, this.localPoint);
 
             for (let i = 0; i < this.pointCount; ++i) {

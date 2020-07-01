@@ -1,4 +1,4 @@
-import {BoxShape, Sweep, timeOfImpact, TOIInput, TOIOutput, TOIStats, Transform, World} from 'planck-ts-core';
+import {BoxShape, Sweep, timeOfImpact, TOIInput, TOIOutput, TOIStats, Transform, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('TimeOfImpact', function (testbed) {

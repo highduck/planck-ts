@@ -1,4 +1,4 @@
-import {Body, BoxShape, CircleShape, EdgeShape, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, CircleShape, EdgeShape, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('EdgeTest', function (testbed) {

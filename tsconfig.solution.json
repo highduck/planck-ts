@@ -4,7 +4,7 @@
   },
   "references": [
     {
-      "path": "packages/planck-core/tsconfig.esm.json"
+      "path": "packages/core/tsconfig.esm.json"
     }
   ],
   "files": []

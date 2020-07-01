@@ -48,180 +48,6 @@ export class DistanceOutput {
     iterations = 0;
 }
 
-/**
- * Used to warm start Distance. Set count to zero on first call.
- *
- * @prop {number} metric length or area
- * @prop {array} indexA vertices on shape A
- * @prop {array} indexB vertices on shape B
- * @prop {number} count
- */
-
-export class SimplexCache {
-    metric = 0;
-    indexA: number[] = [];
-    indexB: number[] = [];
-    count = 0;
-}
-
-const Distance_vec2_temp = new Vec2(0, 0);
-
-const s_simplexCache = new SimplexCache();
-const s_distanceOutput = new DistanceOutput();
-
-export function DistanceOnce(input: DistanceInput): DistanceOutput {
-    s_simplexCache.count = 0;
-    // const cache = new SimplexCache();
-    // const output = new DistanceOutput();
-    Distance(s_distanceOutput, s_simplexCache, input);
-    // Distance(output, cache, input);
-    // return output;
-    return s_distanceOutput;
-}
-
-/**
- * Compute the closest points between two shapes. Supports any combination of:
- * CircleShape, PolygonShape, EdgeShape. The simplex cache is input/output. On
- * the first call set SimplexCache.count to zero.
- */
-export function Distance(output: DistanceOutput, cache: SimplexCache, input: DistanceInput) {
-    ++GJKStats.calls;
-
-    const proxyA = input.proxyA;
-    const proxyB = input.proxyB;
-    const xfA = input.transformA;
-    const xfB = input.transformB;
-
-    // Initialize the simplex.
-    const simplex = new Simplex();
-    simplex.readCache(cache, proxyA, xfA, proxyB, xfB);
-
-    // Get simplex vertices as an array.
-    const vertices = simplex.m_v;// SimplexVertex
-    const k_maxIters = Settings.maxDistanceIterations;
-
-    // These store the vertices of the last simplex so that we
-    // can check for duplicates and prevent cycling.
-    const saveA = [];
-    const saveB = []; // int[3]
-    let saveCount = 0;
-
-    let distanceSqr1 = Infinity;
-    let distanceSqr2 = Infinity;
-
-    // Main iteration loop.
-    let iter = 0;
-    while (iter < k_maxIters) {
-        // Copy simplex so we can identify duplicates.
-        saveCount = simplex.m_count;
-        for (let i = 0; i < saveCount; ++i) {
-            saveA[i] = vertices[i].indexA;
-            saveB[i] = vertices[i].indexB;
-        }
-
-        simplex.solve();
-
-        // If we have 3 points, then the origin is in the corresponding triangle.
-        if (simplex.m_count === 3) {
-            break;
-        }
-
-        // Compute closest point.
-        const p = s_closestPoint;
-        simplex.getClosestPoint(p);
-        distanceSqr2 = p.lengthSquared();
-
-        // Ensure progress
-        if (distanceSqr2 >= distanceSqr1) {
-            // break;
-        }
-        distanceSqr1 = distanceSqr2;
-
-        // Get search direction.
-        const d = s_direction;
-        simplex.getSearchDirection(d);
-
-        // Ensure the search direction is numerically fit.
-        if (d.lengthSquared() < MathUtil.SQUARED_EPSILON) {
-            // The origin is probably contained by a line segment
-            // or triangle. Thus the shapes are overlapped.
-
-            // We can't return zero here even though there may be overlap.
-            // In case the simplex is a point, segment, or triangle it is difficult
-            // to determine if the origin is contained in the CSO or very close to it.
-            break;
-        }
-
-        // Compute a tentative new simplex vertex using support points.
-        const vertex = vertices[simplex.m_count]; // SimplexVertex
-
-        vertex.indexA = proxyA.getSupport(Rot.mulTVec2(xfA.q, Vec2.neg(d)));
-        Transform._mulVec2(xfA, proxyA.getVertex(vertex.indexA), vertex.wA);
-
-        vertex.indexB = proxyB.getSupport(Rot.mulTVec2(xfB.q, d));
-        Transform._mulVec2(xfB, proxyB.getVertex(vertex.indexB), vertex.wB);
-
-        Vec2._sub(vertex.wB, vertex.wA, vertex.w);
-
-        // Iteration count is equated to the number of support point calls.
-        ++iter;
-        ++GJKStats.iters;
-
-        // Check for duplicate support points. This is the main termination
-        // criteria.
-        let duplicate = false;
-        for (let i = 0; i < saveCount; ++i) {
-            if (vertex.indexA === saveA[i] && vertex.indexB === saveB[i]) {
-                duplicate = true;
-                break;
-            }
-        }
-
-        // If we found a duplicate support point we must exit to avoid cycling.
-        if (duplicate) {
-            break;
-        }
-
-        // New vertex is ok and needed.
-        ++simplex.m_count;
-    }
-
-    GJKStats.maxIters = Math.max(GJKStats.maxIters, iter);
-
-    // Prepare output.
-    simplex.getWitnessPoints(output.pointA, output.pointB);
-    output.distance = Vec2.distance(output.pointA, output.pointB);
-    output.iterations = iter;
-
-    // Cache the simplex.
-    simplex.writeCache(cache);
-
-    // Apply radii if requested.
-    if (input.useRadii) {
-        const rA = proxyA.m_radius;
-        const rB = proxyB.m_radius;
-        const tmp = Distance_vec2_temp;
-        if (output.distance > rA + rB && output.distance > MathUtil.EPSILON) {
-            // Shapes are still no overlapped.
-            // Move the witness points to the outer surface.
-            output.distance -= rA + rB;
-
-            Vec2._sub(output.pointB, output.pointA, tmp);
-            tmp.normalize();
-            // const normal = Vec2.sub(output.pointB, output.pointA);
-            // normal.normalize();
-            output.pointA.addMul(rA, tmp);
-            output.pointB.subMul(rB, tmp);
-        } else {
-            // Shapes are overlapped when radii are considered.
-            // Move the witness points to the middle.
-            Vec2._mid(output.pointA, output.pointB, tmp);
-            output.pointA.copyFrom(tmp);
-            output.pointB.copyFrom(tmp);
-            output.distance = 0.0;
-        }
-    }
-}
 
 /**
  * A distance proxy is used by the GJK algorithm. It encapsulates any shape.
@@ -250,11 +76,15 @@ export class DistanceProxy {
     /**
      * Get the supporting vertex index in the given direction.
      */
-    getSupport(d: Vec2) {
+    getSupport(dx: number, dy: number): number {
+        const count = this.m_count;
+        const vertices = this.m_vertices;
+        let v = vertices[0];
         let bestIndex = 0;
-        let bestValue = Vec2.dot(this.m_vertices[0], d);
-        for (let i = 1; i < this.m_count; ++i) {
-            const value = Vec2.dot(this.m_vertices[i], d);
+        let bestValue = v.x * dx + v.y * dy;
+        for (let i = 1; i < count; ++i) {
+            v = vertices[i];
+            const value = v.x * dx + v.y * dy;
             if (value > bestValue) {
                 bestIndex = i;
                 bestValue = value;
@@ -266,8 +96,20 @@ export class DistanceProxy {
     /**
      * Get the supporting vertex in the given direction.
      */
-    getSupportVertex(d: Vec2) {
-        return this.m_vertices[this.getSupport(d)];
+    getSupportVertex(dx: number, dy: number): Vec2 {
+        const count = this.m_count;
+        const vertices = this.m_vertices;
+        let v = vertices[0];
+        let bestVertex = v;
+        let bestValue = v.x * dx + v.y * dy;
+        for (let i = 1; i < count; ++i) {
+            v = vertices[i];
+            const value = v.x * dx + v.y * dy;
+            if (value > bestValue) {
+                bestVertex = v;
+            }
+        }
+        return bestVertex;
     }
 
     /**
@@ -363,7 +205,7 @@ class Simplex {
 
         // If the cache is empty or invalid...
         if (this.m_count === 0) {
-            const v = this.m_v[0];// SimplexVertex
+            const v = this.m_v1;
             v.indexA = 0;
             v.indexB = 0;
             const wALocal = proxyA.getVertex(0);
@@ -627,6 +469,209 @@ class Simplex {
         this.m_v3.a = d123_3 * inv_d123;
         this.m_count = 3;
     }
+}
+
+/**
+ * Used to warm start Distance. Set count to zero on first call.
+ *
+ * @prop {number} metric length or area
+ * @prop {array} indexA vertices on shape A
+ * @prop {array} indexB vertices on shape B
+ * @prop {number} count
+ */
+
+export class SimplexCache {
+    metric = 0;
+    indexA: number[] = [];
+    indexB: number[] = [];
+    count = 0;
+}
+
+const Distance_vec2_temp = new Vec2(0, 0);
+
+const s_simplexCache = new SimplexCache();
+const s_distanceOutput = new DistanceOutput();
+
+export function DistanceOnce(input: DistanceInput): DistanceOutput {
+    s_simplexCache.count = 0;
+    // const cache = new SimplexCache();
+    // const output = new DistanceOutput();
+    Distance(s_distanceOutput, s_simplexCache, input);
+    // Distance(output, cache, input);
+    // return output;
+    return s_distanceOutput;
+}
+
+let s_check_recursion_depth = 0;
+const s_simplex = new Simplex();
+
+/**
+ * Compute the closest points between two shapes. Supports any combination of:
+ * CircleShape, PolygonShape, EdgeShape. The simplex cache is input/output. On
+ * the first call set SimplexCache.count to zero.
+ */
+export function Distance(output: DistanceOutput, cache: SimplexCache, input: DistanceInput) {
+    ++s_check_recursion_depth;
+    if (s_check_recursion_depth > 1) {
+        console.error("recursion?");
+    }
+
+    ++GJKStats.calls;
+
+    const proxyA = input.proxyA;
+    const proxyB = input.proxyB;
+    const xfA = input.transformA;
+    const xfB = input.transformB;
+
+    // Initialize the simplex.
+    const simplex = s_simplex;
+    simplex.readCache(cache, proxyA, xfA, proxyB, xfB);
+
+    // Get simplex vertices as an array.
+    const vertices = simplex.m_v;// SimplexVertex
+    const k_maxIters = Settings.maxDistanceIterations;
+
+    // These store the vertices of the last simplex so that we
+    // can check for duplicates and prevent cycling.
+    const saveA = [];
+    const saveB = []; // int[3]
+    let saveCount = 0;
+
+    let distanceSqr1 = Infinity;
+    let distanceSqr2 = Infinity;
+
+    // Main iteration loop.
+    let iter = 0;
+    while (iter < k_maxIters) {
+        // Copy simplex so we can identify duplicates.
+        saveCount = simplex.m_count;
+        for (let i = 0; i < saveCount; ++i) {
+            saveA[i] = vertices[i].indexA;
+            saveB[i] = vertices[i].indexB;
+        }
+
+        simplex.solve();
+
+        // If we have 3 points, then the origin is in the corresponding triangle.
+        if (simplex.m_count === 3) {
+            break;
+        }
+
+        // Compute closest point.
+        const p = s_closestPoint;
+        simplex.getClosestPoint(p);
+        distanceSqr2 = p.lengthSquared();
+
+        // Ensure progress
+        if (distanceSqr2 >= distanceSqr1) {
+            // break;
+        }
+        distanceSqr1 = distanceSqr2;
+
+        // Get search direction.
+        const d = s_direction;
+        simplex.getSearchDirection(d);
+
+        // Ensure the search direction is numerically fit.
+        if (d.lengthSquared() < MathUtil.SQUARED_EPSILON) {
+            // The origin is probably contained by a line segment
+            // or triangle. Thus the shapes are overlapped.
+
+            // We can't return zero here even though there may be overlap.
+            // In case the simplex is a point, segment, or triangle it is difficult
+            // to determine if the origin is contained in the CSO or very close to it.
+            break;
+        }
+
+        // Compute a tentative new simplex vertex using support points.
+        const vertex = vertices[simplex.m_count]; // SimplexVertex
+
+        // vertex.indexA = proxyA.getSupport(Rot.mulTVec2(xfA, Vec2.neg(d)));
+        // INLINE:
+        // Rot.mulTVec2(xfA, Vec2.neg(d)) =>
+        // x: -xfA.c * d.x - xfA.s * d.y
+        // y: xfA.s * d.x - xfA.c * d.y
+        vertex.indexA = proxyA.getSupport(
+            -xfA.c * d.x - xfA.s * d.y,
+            xfA.s * d.x - xfA.c * d.y
+        );
+
+        Transform._mulVec2(xfA, proxyA.getVertex(vertex.indexA), vertex.wA);
+
+        // vertex.indexB = proxyB.getSupport(Rot.mulTVec2(xfB, d));
+        // INLINE:
+        // Rot.mulTVec2(xfB, d) =>
+        // x: xfB.c * d.x + xfB.s * d.y
+        // y: -xfB.s * d.x + xfB.c * d.y
+        vertex.indexB = proxyB.getSupport(
+            xfB.c * d.x + xfB.s * d.y,
+            -xfB.s * d.x + xfB.c * d.y
+        );
+
+        Transform._mulVec2(xfB, proxyB.getVertex(vertex.indexB), vertex.wB);
+
+        Vec2._sub(vertex.wB, vertex.wA, vertex.w);
+
+        // Iteration count is equated to the number of support point calls.
+        ++iter;
+        ++GJKStats.iters;
+
+        // Check for duplicate support points. This is the main termination
+        // criteria.
+        let duplicate = false;
+        for (let i = 0; i < saveCount; ++i) {
+            if (vertex.indexA === saveA[i] && vertex.indexB === saveB[i]) {
+                duplicate = true;
+                break;
+            }
+        }
+
+        // If we found a duplicate support point we must exit to avoid cycling.
+        if (duplicate) {
+            break;
+        }
+
+        // New vertex is ok and needed.
+        ++simplex.m_count;
+    }
+
+    GJKStats.maxIters = Math.max(GJKStats.maxIters, iter);
+
+    // Prepare output.
+    simplex.getWitnessPoints(output.pointA, output.pointB);
+    output.distance = Vec2.distance(output.pointA, output.pointB);
+    output.iterations = iter;
+
+    // Cache the simplex.
+    simplex.writeCache(cache);
+
+    // Apply radii if requested.
+    if (input.useRadii) {
+        const rA = proxyA.m_radius;
+        const rB = proxyB.m_radius;
+        const tmp = Distance_vec2_temp;
+        if (output.distance > rA + rB && output.distance > MathUtil.EPSILON) {
+            // Shapes are still no overlapped.
+            // Move the witness points to the outer surface.
+            output.distance -= rA + rB;
+
+            Vec2._sub(output.pointB, output.pointA, tmp);
+            tmp.normalize();
+            // const normal = Vec2.sub(output.pointB, output.pointA);
+            // normal.normalize();
+            output.pointA.addMul(rA, tmp);
+            output.pointB.subMul(rB, tmp);
+        } else {
+            // Shapes are overlapped when radii are considered.
+            // Move the witness points to the middle.
+            Vec2._mid(output.pointA, output.pointB, tmp);
+            output.pointA.copyFrom(tmp);
+            output.pointB.copyFrom(tmp);
+            output.distance = 0.0;
+        }
+    }
+
+    --s_check_recursion_depth;
 }
 
 const s_distanceInput = new DistanceInput();

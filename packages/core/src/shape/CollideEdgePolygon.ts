@@ -7,11 +7,11 @@ import {Transform} from "../common/Transform";
 import {Vec2} from "../common/Vec2";
 import {Settings} from "../Settings";
 import {clipSegmentToLine, ClipVertex, ClipVertexPair, ContactFeatureType, Manifold, ManifoldType} from "../Manifold";
-import {Rot} from "../common/Rot";
 import {Fixture} from "../Fixture";
+import {ShapeType} from "../Shape";
 
-Contact.addType(EdgeShape.TYPE, PolygonShape.TYPE, EdgePolygonContact);
-Contact.addType(ChainShape.TYPE, PolygonShape.TYPE, ChainPolygonContact);
+Contact.addType(ShapeType.EDGE, ShapeType.POLYGON, EdgePolygonContact);
+Contact.addType(ShapeType.CHAIN, ShapeType.POLYGON, ChainPolygonContact);
 
 function EdgePolygonContact(manifold: Manifold,
                             xfA: Transform, fixtureA: Fixture, indexA: number,
@@ -266,7 +266,7 @@ function CollideEdgePolygon(manifold: Manifold,
     polygonBA.count = polygonB.m_count;
     for (let i = 0; i < polygonB.m_count; ++i) {
         polygonBA.vertices[i] = Transform.mulVec2(xf, polygonB.m_vertices[i]);
-        polygonBA.normals[i] = Rot.mulVec2(xf.q, polygonB.m_normals[i]);
+        polygonBA.normals[i] = xf.newRotMulVec2(polygonB.m_normals[i]);
     }
 
     const radius = 2.0 * Settings.polygonRadius;
@@ -456,18 +456,18 @@ function CollideEdgePolygon(manifold: Manifold,
 
         if (separation <= radius) {
             const cp = manifold.points[pointCount]; // ManifoldPoint
-
+            const clipPoint2 = clipPoints2[i];
             if (primaryAxis.type === EPAxisType.e_edgeA) {
                 // cp.localPoint.copyFrom(Transform.mulTVec2(xf, clipPoints2[i].v));
-                Transform._mulTVec2(xf, clipPoints2[i].v, cp.localPoint);
+                Transform._mulTVec2(xf, clipPoint2.v, cp.localPoint);
 
-                cp.cf.copyFrom(clipPoints2[i].cf);
+                cp.cf.copyFrom(clipPoint2.cf);
             } else {
-                cp.localPoint.copyFrom(clipPoints2[i].v);
-                cp.cf.typeA = clipPoints2[i].cf.typeB;
-                cp.cf.typeB = clipPoints2[i].cf.typeA;
-                cp.cf.indexA = clipPoints2[i].cf.indexB;
-                cp.cf.indexB = clipPoints2[i].cf.indexA;
+                cp.localPoint.copyFrom(clipPoint2.v);
+                cp.cf.typeA = clipPoint2.cf.typeB;
+                cp.cf.typeB = clipPoint2.cf.typeA;
+                cp.cf.indexA = clipPoint2.cf.indexB;
+                cp.cf.indexB = clipPoint2.cf.indexA;
             }
 
             ++pointCount;

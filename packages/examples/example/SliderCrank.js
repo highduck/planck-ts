@@ -1,4 +1,4 @@
-import {Body, BoxShape, EdgeShape, PrismaticJoint, RevoluteJoint, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, EdgeShape, PrismaticJoint, RevoluteJoint, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // A motor driven slider crank with joint friction.

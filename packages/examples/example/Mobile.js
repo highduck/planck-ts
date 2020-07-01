@@ -8,7 +8,7 @@ import {
     World,
     Transform,
     PolygonShape
-} from 'planck-ts-core';
+} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('Mobile', function(testbed) {

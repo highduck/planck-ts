@@ -1,4 +1,4 @@
-import {Body, BoxShape, ChainShape, CircleShape, RevoluteJoint, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, ChainShape, CircleShape, RevoluteJoint, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // This tests bullet collision and provides an example of a gameplay scenario.

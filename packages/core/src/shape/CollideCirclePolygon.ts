@@ -7,12 +7,13 @@ import {Vec2} from "../common/Vec2";
 import {MathUtil} from "../common/Math";
 import {ContactFeatureType, Manifold, ManifoldType} from "../Manifold";
 import {Fixture} from "../Fixture";
+import {ShapeType} from "../Shape";
 
 const CollidePolygonCircle_faceCenter = new Vec2(0, 0);
 const CollidePolygonCircle_sub_0 = new Vec2(0, 0);
 const CollidePolygonCircle_sub_1 = new Vec2(0, 0);
 
-Contact.addType(PolygonShape.TYPE, CircleShape.TYPE, PolygonCircleContact);
+Contact.addType(ShapeType.POLYGON, ShapeType.CIRCLE, PolygonCircleContact);
 
 function PolygonCircleContact(manifold: Manifold,
                               xfA: Transform, fixtureA: Fixture, indexA: number,
@@ -99,7 +100,8 @@ function CollidePolygonCircle(manifold: Manifold,
 
         manifold.pointCount = 1;
         manifold.type = ManifoldType.e_faceA;
-        manifold.localNormal.setCombine(1, cLocal, -1, v1);
+        //manifold.localNormal.setCombine(1, cLocal, -1, v1);
+        Vec2._sub(cLocal, v1, manifold.localNormal);
         manifold.localNormal.normalize();
         manifold.localPoint.copyFrom(v1);
         manifold.points[0].localPoint.copyFrom(circleB.m_p);
@@ -114,7 +116,8 @@ function CollidePolygonCircle(manifold: Manifold,
 
         manifold.pointCount = 1;
         manifold.type = ManifoldType.e_faceA;
-        manifold.localNormal.setCombine(1, cLocal, -1, v2);
+        // manifold.localNormal.setCombine(1, cLocal, -1, v2);
+        Vec2._sub(cLocal, v2, manifold.localNormal);
         manifold.localNormal.normalize();
         manifold.localPoint.copyFrom(v2);
         manifold.points[0].localPoint.copyFrom(circleB.m_p);

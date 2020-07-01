@@ -1,4 +1,4 @@
-import {Body, ChainShape, CircleShape, MathUtil, Settings, Vec2, World} from 'planck-ts-core';
+import {Body, ChainShape, CircleShape, MathUtil, Settings, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('Shuffle', function (testbed) {

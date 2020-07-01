@@ -1,5 +1,10 @@
 import {MathUtil} from "./Math";
 
+export interface IVec2 {
+    x: number,
+    y: number
+}
+
 export class Vec2 {
 
     static readonly ZERO = new Vec2(0, 0);
@@ -73,7 +78,7 @@ export class Vec2 {
         return this;
     }
 
-    copyFrom(v: Vec2): this {
+    copyFrom(v: IVec2): this {
         this.x = v.x;
         this.y = v.y;
         return this;
@@ -207,14 +212,18 @@ export class Vec2 {
      * For performance, use this instead of lengthSquared (if possible).
      */
     length(): number {
-        return Vec2.lengthOf(this);
+        const x = this.x;
+        const y = this.y;
+        return Math.sqrt(x * x + y * y);
     }
 
     /**
      * Get the length squared.
      */
     lengthSquared(): number {
-        return Vec2.lengthSquared(this);
+        const x = this.x;
+        const y = this.y;
+        return x * x + y * y;
     }
 
     /**
@@ -223,32 +232,17 @@ export class Vec2 {
      * @returns old length
      */
     normalize(): number {
-        const length = this.length();
-        if (length < MathUtil.EPSILON) {
+        const x = this.x;
+        const y = this.y;
+        let len = x * x + y * y;
+        if (len < MathUtil.SQUARED_EPSILON) {
             return 0.0;
         }
-        const invLength = 1.0 / length;
+        len = Math.sqrt(len);
+        const invLength = 1.0 / len;
         this.x *= invLength;
         this.y *= invLength;
-        return length;
-    }
-
-    /**
-     * Get the length of this vector (the norm).
-     *
-     * For performance, use this instead of lengthSquared (if possible).
-     */
-    static lengthOf(v: Vec2): number {
-        PLANCK_ASSERT && Vec2.assert(v);
-        return Math.sqrt(v.x * v.x + v.y * v.y);
-    }
-
-    /**
-     * Get the length squared.
-     */
-    static lengthSquared(v: Vec2): number {
-        PLANCK_ASSERT && Vec2.assert(v);
-        return v.x * v.x + v.y * v.y;
+        return len;
     }
 
     static distance(v: Vec2, w: Vec2): number {
@@ -343,7 +337,7 @@ export class Vec2 {
         return new Vec2(w * v.y + a.x, -w * v.x + a.y);
     }
 
-    static add(v: Vec2, w: Vec2): Vec2 {
+    static add(v: IVec2, w: IVec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
         PLANCK_ASSERT && Vec2.assert(w);
         return new Vec2(v.x + w.x, v.y + w.y);
@@ -353,13 +347,13 @@ export class Vec2 {
         return Vec2.zero().setCombine(a, v, b, w);
     }
 
-    static sub(v: Vec2, w: Vec2): Vec2 {
+    static sub(v: IVec2, w: IVec2): Vec2 {
         PLANCK_ASSERT && Vec2.assert(v);
         PLANCK_ASSERT && Vec2.assert(w);
         return new Vec2(v.x - w.x, v.y - w.y);
     }
 
-    static _sub(a: Vec2, b: Vec2, out: Vec2) {
+    static _sub(a: IVec2, b: IVec2, out: IVec2) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
     }
@@ -430,7 +424,7 @@ export class Vec2 {
         this.y = MathUtil.clamp(this.x, min.y, max.y);
     }
 
-    static _combine(a: number, u: Vec2, b: number, v: Vec2, out: Vec2) {
+    static _combine(a: number, u: IVec2, b: number, v: IVec2, out: IVec2) {
         out.x = a * u.x + b * v.x;
         out.y = a * u.y + b * v.y;
     }

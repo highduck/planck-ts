@@ -5,14 +5,26 @@ import {Vec2} from "./common/Vec2";
 import {RayCastInput, RayCastOutput} from "./collision/RayCastOptions";
 import {AABB} from "./collision/AABB";
 
-export type ShapeType = string;
+export const enum ShapeType {
+    CIRCLE = 1,
+    POLYGON = 2,
+    EDGE = 3,
+    CHAIN = 4
+}
 
 export class Shape {
+
+    static CIRCLE = ShapeType.CIRCLE;
+    static POLYGON = ShapeType.POLYGON;
+    static EDGE = ShapeType.EDGE;
+    static CHAIN = ShapeType.CHAIN;
+
     m_type: ShapeType;
     m_radius: number = 0;
 
-    constructor(type: ShapeType) {
+    constructor(type: ShapeType, radius: number) {
         this.m_type = type;
+        this.m_radius = radius;
     }
 
     _reset() {
@@ -22,7 +34,16 @@ export class Shape {
     //     return {};
     // }
 
-    static TYPES: { [key: string]: object } = {};
+    static TYPES = new Map<ShapeType, object>();
+
+    // static register(typeA: ShapeType, typeB: ShapeType, fn: object) {
+    //     Shape.TYPES.set((typeA << 4) | typeB, fn);
+    //     Shape.TYPES.set((typeB << 4) | typeA, fn);
+    // }
+    //
+    // static resolve(typeA: ShapeType, typeB: ShapeType): object {
+    //     return Shape.TYPES.get((typeA << 4) | typeB)!;
+    // }
 
     // static _deserialize(data, context, restore) {
     //     const clazz = Shape.TYPES[data.type];

@@ -1,9 +1,9 @@
-import {Body, World, Vec2, Settings, CircleShape, PolygonShape} from 'planck-ts-core';
+import {Body, World, Vec2, Settings, CircleShape, PolygonShape, MathUtil} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
-import {MathUtil} from "planck-ts-core/dist/common/Math";
 
 testbed('8 Ball', function (testbed) {
-    const SPI4 = Math.sin(Math.PI / 4), SPI3 = Math.sin(Math.PI / 3);
+    const SPI4 = Math.sin(Math.PI / 4);
+    const SPI3 = Math.sin(Math.PI / 3);
 
     const COLORED = true;
     const BLACK = {fill: 'black', stroke: 'white'};
@@ -76,13 +76,12 @@ testbed('8 Ball', function (testbed) {
         angularDamping: 1
     };
 
-    world.createBody().createFixture(new PolygonShape(railV.map((v) => v.scale(+1, +1))), railFixDef);
-    world.createBody().createFixture(new PolygonShape(railV.map((v) => v.scale(-1, +1))), railFixDef);
-
-    world.createBody().createFixture(new PolygonShape(railH.map((v) => v.scale(+1, +1))), railFixDef);
-    world.createBody().createFixture(new PolygonShape(railH.map((v) => v.scale(-1, +1))), railFixDef);
-    world.createBody().createFixture(new PolygonShape(railH.map((v) => v.scale(+1, -1))), railFixDef);
-    world.createBody().createFixture(new PolygonShape(railH.map((v) => v.scale(-1, -1))), railFixDef);
+    world.createBody().createFixture(new PolygonShape(railV.map((v) => v.clone().scale(+1, +1))), railFixDef);
+    world.createBody().createFixture(new PolygonShape(railV.map((v) => v.clone().scale(-1, +1))), railFixDef);
+    world.createBody().createFixture(new PolygonShape(railH.map((v) => v.clone().scale(+1, +1))), railFixDef);
+    world.createBody().createFixture(new PolygonShape(railH.map((v) => v.clone().scale(-1, +1))), railFixDef);
+    world.createBody().createFixture(new PolygonShape(railH.map((v) => v.clone().scale(+1, -1))), railFixDef);
+    world.createBody().createFixture(new PolygonShape(railH.map((v) => v.clone().scale(-1, -1))), railFixDef);
 
     world.createBody().createFixture(new CircleShape(0, -height * .5 - POCKET_R * 1.5, POCKET_R), pocketFixDef);
     world.createBody().createFixture(new CircleShape(0, +height * .5 + POCKET_R * 1.5, POCKET_R), pocketFixDef);

@@ -1,5 +1,10 @@
-import {Vec2} from "./Vec2";
+import {IVec2, Vec2} from "./Vec2";
 import {MathUtil} from "./Math";
+
+export interface IRot {
+    s: number,
+    c: number
+}
 
 // TODO merge with Transform
 export class Rot {
@@ -90,14 +95,14 @@ export class Rot {
      *
      * @returns Rot
      */
-    static mulRot(rot: Rot, m: Rot) {
-        PLANCK_ASSERT && Rot.assert(rot);
-        PLANCK_ASSERT && Rot.assert(m);
+    static mulRot(a: Rot, b: Rot) {
+        PLANCK_ASSERT && Rot.assert(a);
+        PLANCK_ASSERT && Rot.assert(b);
         // [qc -qs] * [rc -rs] = [qc*rc-qs*rs -qc*rs-qs*rc]
         // [qs qc] [rs rc] [qs*rc+qc*rs -qs*rs+qc*rc]
         // s = qs * rc + qc * rs
         // c = qc * rc - qs * rs
-        return new Rot(rot.s * m.c + rot.c * m.s, rot.c * m.c - rot.s * m.s);
+        return new Rot(a.s * b.c + a.c * b.s, a.c * b.c - a.s * b.s);
     }
 
     /**
@@ -105,20 +110,20 @@ export class Rot {
      *
      * @returns Vec2
      */
-    static mulVec2(rot: Rot, m: Vec2): Vec2 {
+    static mulVec2(rot: Readonly<IRot>, m: Readonly<IVec2>): Vec2 {
         PLANCK_ASSERT && Rot.assert(rot);
         PLANCK_ASSERT && Vec2.assert(m);
         return new Vec2(rot.c * m.x - rot.s * m.y, rot.s * m.x + rot.c * m.y);
     }
 
-    static _mulVec2(rot: Rot, v: Vec2, out: Vec2) {
+    static _mulVec2(rot: Readonly<IRot>, v: Readonly<IVec2>, out: IVec2) {
         const x = rot.c * v.x - rot.s * v.y;
         const y = rot.s * v.x + rot.c * v.y;
         out.x = x;
         out.y = y;
     }
 
-    static mulSub(rot: Rot, v: Vec2, w: Vec2): Vec2 {
+    static mulSub(rot: IRot, v: Vec2, w: Vec2): Vec2 {
         const x = rot.c * (v.x - w.x) - rot.s * (v.y - w.y);
         const y = rot.s * (v.x - w.x) + rot.c * (v.y - w.y);
         return new Vec2(x, y);
@@ -143,16 +148,24 @@ export class Rot {
      *
      * @returns Vec2
      */
-    static mulTVec2(rot: Rot, m: Vec2): Vec2 {
-        PLANCK_ASSERT && Vec2.assert(m);
-        return new Vec2(rot.c * m.x + rot.s * m.y, -rot.s * m.x + rot.c * m.y);
+    static mulTVec2(rot: IRot, v: Vec2): Vec2 {
+        PLANCK_ASSERT && Vec2.assert(v);
+        return new Vec2(rot.c * v.x + rot.s * v.y, -rot.s * v.x + rot.c * v.y);
     }
 
-    static _mulTVec2(rot: Rot, v: Vec2, out: Vec2) {
+    static _mulTVec2(rot: IRot, v: Vec2, out: Vec2) {
         const x = rot.c * v.x + rot.s * v.y;
         const y = -rot.s * v.x + rot.c * v.y;
         out.x = x;
         out.y = y;
     }
 
+    static getAngle(rot: IRot) {
+        return Math.atan2(rot.s, rot.c);
+    }
+
+    static setAngle(rot: IRot, angle: number) {
+        rot.s = Math.sin(angle);
+        rot.c = Math.cos(angle);
+    }
 }

@@ -7,8 +7,9 @@ import {Vec2} from "../common/Vec2";
 import {clipSegmentToLine, ClipVertex, ClipVertexPair, ContactFeatureType, Manifold, ManifoldType} from "../Manifold";
 import {Settings} from "../Settings";
 import {Fixture} from "../Fixture";
+import {ShapeType} from "../Shape";
 
-Contact.addType(PolygonShape.TYPE, PolygonShape.TYPE, PolygonContact);
+Contact.addType(ShapeType.POLYGON, ShapeType.POLYGON, PolygonContact);
 
 function PolygonContact(manifold: Manifold,
                         xfA: Transform, fixtureA: Fixture, indexA: number,
@@ -39,7 +40,7 @@ function FindMaxSeparation(poly1: PolygonShape, xf1: Transform, poly2: PolygonSh
     let maxSeparation = -Infinity;
     for (let i = 0; i < count1; ++i) {
         // Get poly1 normal in frame2.
-        const n = Rot.mulVec2(xf.q, n1s[i]);
+        const n = Rot.mulVec2(xf, n1s[i]);
         const v1 = Transform.mulVec2(xf, v1s[i]);
 
         // Find deepest point for normal i.
@@ -85,8 +86,8 @@ function FindIncidentEdge(c0: ClipVertex, c1: ClipVertex,
 
     // const normal1 = Rot.mulTVec2(xf2.q, Rot.mulVec2(xf1.q, normals1[edge1]));
     const normal1 = s_FindIncidentEdge_normal;
-    Rot._mulVec2(xf1.q, normals1[edge1], normal1);
-    Rot._mulTVec2(xf2.q, normal1, normal1);
+    Rot._mulVec2(xf1, normals1[edge1], normal1);
+    Rot._mulTVec2(xf2, normal1, normal1);
 
     // Find the incident edge on poly2.
     let index = 0;
@@ -185,7 +186,7 @@ function CollidePolygons(manifold: Manifold, polyA: PolygonShape, xfA: Transform
     const localNormal = Vec2.crossVS(localTangent, 1.0);
     const planePoint = Vec2.combine(0.5, v11, 0.5, v12);
 
-    const tangent = Rot.mulVec2(xf1.q, localTangent);
+    const tangent = xf1.newRotMulVec2(localTangent);
     const normal = Vec2.crossVS(tangent, 1.0);
 
     v11 = Transform.mulVec2(xf1, v11);

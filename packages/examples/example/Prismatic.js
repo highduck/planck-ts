@@ -1,4 +1,4 @@
-import {Body, BoxShape, EdgeShape, PrismaticJoint, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, EdgeShape, PrismaticJoint, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // The motor in this test gets smoother with higher velocity iterations.

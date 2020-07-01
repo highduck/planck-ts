@@ -84,9 +84,9 @@ describe('Collision', function () {
         tree.query(new AABB(2.3, 2.3, 2.7, 2.7), callback);
         expect(QueryCallback.lastCall.calledWith(baz)).equal(true);
 
-        expect(tree.moveProxy(foo, new AABB(0, 0, 1, 1), new Vec2(0.01, 0.01))).equal(false);
+        expect(tree.moveProxy(foo, new AABB(0, 0, 1, 1), 0.01, 0.01)).equal(false);
 
-        expect(tree.moveProxy(baz, new AABB(3, 3, 4, 4), new Vec2(0, 0))).equal(true);
+        expect(tree.moveProxy(baz, new AABB(3, 3, 4, 4), 0, 0)).equal(true);
 
         tree.query(new AABB(3.3, 3.3, 3.7, 3.7), callback);
         expect(QueryCallback.lastCall.calledWith(baz)).equal(true);
@@ -111,21 +111,21 @@ describe('Collision', function () {
         const foo = bp.createProxy(new AABB(0, 0, 1, 1), 'foo');
         const bar = bp.createProxy(new AABB(2, 2, 3, 3), 'bar');
 
-        bp.updatePairs(callback);
+        bp.updatePairs_(callback);
         expect(AddPair.callCount).equal(0);
 
         const baz = bp.createProxy(new AABB(1, 1, 2, 2), 'baz');
 
         AddPair.resetHistory();
-        bp.updatePairs(callback);
+        bp.updatePairs_(callback);
         expect(AddPair.callCount).equal(2);
         expect(AddPair.calledWith('bar', 'baz')).equal(true);
         expect(AddPair.calledWith('foo', 'baz')).equal(true);
 
-        bp.moveProxy(baz, new AABB(0.5, 0.5, 1.5, 1.5), new Vec2(0, 0));
+        bp.moveProxy(baz, new AABB(0.5, 0.5, 1.5, 1.5), 0, 0);
 
         AddPair.resetHistory();
-        bp.updatePairs(callback);
+        bp.updatePairs_(callback);
         expect(AddPair.callCount).equal(1);
         expect(AddPair.calledWith('foo', 'baz')).equal(true);
 

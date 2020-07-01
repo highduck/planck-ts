@@ -17,7 +17,7 @@ import {AABB} from "../collision/AABB";
  * for a convex polygon. extends Shape
  */
 export class PolygonShape extends Shape {
-    static TYPE: ShapeType = 'polygon';
+    static TYPE = ShapeType.POLYGON;
 
     readonly m_centroid = new Vec2(0.0, 0.0);
     m_vertices: Vec2[] = []; // Vec2[Settings.maxPolygonVertices]
@@ -25,8 +25,7 @@ export class PolygonShape extends Shape {
     m_count = 0;
 
     constructor(vertices?: Vec2[]) {
-        super(PolygonShape.TYPE);
-        this.m_radius = Settings.polygonRadius;
+        super(ShapeType.POLYGON, Settings.polygonRadius);
 
         if (vertices && vertices.length) {
             this._set(vertices);
@@ -219,23 +218,19 @@ export class PolygonShape extends Shape {
 
         if (center !== undefined) {
             this.m_centroid.copyFrom(center);
-
-            const xf = Transform.identity();
-            xf.p.copyFrom(center);
-            xf.q.setAngle(angle);
-
+            const xf = Transform.create(center.x, center.y, angle);
             // Transform vertices and normals.
             for (let i = 0; i < this.m_count; ++i) {
                 const v = this.m_vertices[i];
                 const n = this.m_normals[i];
                 Transform._mulVec2(xf, v, v);
-                Rot._mulVec2(xf.q, n, n);
+                Rot._mulVec2(xf, n, n);
             }
         }
     }
 
     testPoint(xf: Transform, p: Vec2) {
-        const pLocal = Rot.mulTVec2(xf.q, Vec2.sub(p, xf.p));
+        const pLocal = Rot.mulTVec2(xf, Vec2.sub(p, xf));
 
         for (let i = 0; i < this.m_count; ++i) {
             const dot = Vec2.dot(this.m_normals[i], Vec2.sub(pLocal, this.m_vertices[i]));
@@ -250,8 +245,8 @@ export class PolygonShape extends Shape {
     rayCast(output: RayCastOutput, input: RayCastInput, xf: Transform, childIndex: number) {
 
         // Put the ray into the polygon's frame of reference.
-        const p1 = Rot.mulTVec2(xf.q, Vec2.sub(input.p1, xf.p));
-        const p2 = Rot.mulTVec2(xf.q, Vec2.sub(input.p2, xf.p));
+        const p1 = Rot.mulTVec2(xf, Vec2.sub(input.p1, xf));
+        const p2 = Rot.mulTVec2(xf, Vec2.sub(input.p2, xf));
         const d = Vec2.sub(p2, p1);
 
         let lower = 0.0;
@@ -302,7 +297,7 @@ export class PolygonShape extends Shape {
 
         if (index >= 0) {
             output.fraction = lower;
-            output.normal = Rot.mulVec2(xf.q, this.m_normals[index]);
+            output.normal = Rot.mulVec2(xf, this.m_normals[index]);
             return true;
         }
 
@@ -488,4 +483,4 @@ function computeCentroid(vs: Vec2[], count: number, out: Vec2) {
     return out;
 }
 
-Shape.TYPES[PolygonShape.TYPE] = PolygonShape;
+Shape.TYPES.set(ShapeType.POLYGON, PolygonShape);

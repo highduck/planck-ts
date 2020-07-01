@@ -146,9 +146,8 @@ export class DynamicTree {
      *
      * @return true if the proxy was re-inserted.
      */
-    moveProxy(id: number, aabb: AABB, d: Vec2): boolean {
+    moveProxy(id: number, aabb: AABB, dx: number, dy: number): boolean {
         PLANCK_ASSERT && assert(AABB.isValid(aabb));
-        PLANCK_ASSERT && assert(!d || Vec2.isValid(d));
 
         const node = this.m_nodes.get(id)!;
 
@@ -170,16 +169,16 @@ export class DynamicTree {
         // Predict AABB displacement.
         // var d = Vec2.mul(Settings.aabbMultiplier, displacement);
 
-        if (d.x < 0.0) {
-            aabb.lx += d.x * Settings.aabbMultiplier;
+        if (dx < 0.0) {
+            aabb.lx += dx * Settings.aabbMultiplier;
         } else {
-            aabb.ux += d.x * Settings.aabbMultiplier;
+            aabb.ux += dx * Settings.aabbMultiplier;
         }
 
-        if (d.y < 0.0) {
-            aabb.ly += d.y * Settings.aabbMultiplier;
+        if (dy < 0.0) {
+            aabb.ly += dy * Settings.aabbMultiplier;
         } else {
-            aabb.uy += d.y * Settings.aabbMultiplier;
+            aabb.uy += dy * Settings.aabbMultiplier;
         }
 
         this.insertLeaf(node);
@@ -720,9 +719,9 @@ export class DynamicTree {
         stackPool.release(stack);
     }
 
-    static s_stack:TreeNode[] = [];
+    static s_stack: TreeNode[] = [];
 
-    query_(aabb: AABB, out:number[]):number {
+    query_(aabb: AABB, out: number[]): number {
         const stack = DynamicTree.s_stack;
         stack[0] = this.m_root!;
         let size = 1;

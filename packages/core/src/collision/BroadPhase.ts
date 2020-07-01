@@ -134,10 +134,9 @@ export class BroadPhase {
      * Call moveProxy as many times as you like, then when you are done call
      * UpdatePairs to finalized the proxy pairs (for your time step).
      */
-    moveProxy(proxyId: number, aabb: AABB, displacement: Vec2) {
+    moveProxy(proxyId: number, aabb: AABB, dx: number, dy: number) {
         PLANCK_ASSERT && assert(AABB.isValid(aabb));
-        const changed = this.m_tree.moveProxy(proxyId, aabb, displacement);
-        if (changed) {
+        if (this.m_tree.moveProxy(proxyId, aabb, dx, dy)) {
             this.bufferMove(proxyId);
         }
     }
@@ -173,31 +172,31 @@ export class BroadPhase {
      *
      * @param {BroadPhase~AddPair} addPairCallback
      */
-    // updatePairs(addPairCallback: (proxyA: FixtureProxy, proxyB: FixtureProxy) => void) {
-    //     this.m_callback = addPairCallback;
-    //     // Perform tree queries for all moving proxies.
-    //     const tree = this.m_tree;
-    //     const buf = this.m_moveBuffer;
-    //     for (let i = 0; i < buf.length; ++i) {
-    //         const queryProxyId = buf[i];
-    //         if (queryProxyId === 0) {
-    //             // skip unbuffered
-    //             continue;
-    //         }
-    //
-    //         // We have to query the tree with the fat AABB so that
-    //         // we don't fail to create a pair that may touch later.
-    //         const fatAABB = tree.getFatAABB(queryProxyId);
-    //
-    //         // Query tree, create pairs and add them pair buffer.
-    //         this.m_queryProxyId = queryProxyId;
-    //         tree.query(fatAABB, this.queryCallback);
-    //     }
-    //     buf.length = 0;
-    //
-    //     // Try to keep the tree balanced.
-    //     // this.m_tree.rebalance(4);
-    // }
+        // updatePairs(addPairCallback: (proxyA: FixtureProxy, proxyB: FixtureProxy) => void) {
+        //     this.m_callback = addPairCallback;
+        //     // Perform tree queries for all moving proxies.
+        //     const tree = this.m_tree;
+        //     const buf = this.m_moveBuffer;
+        //     for (let i = 0; i < buf.length; ++i) {
+        //         const queryProxyId = buf[i];
+        //         if (queryProxyId === 0) {
+        //             // skip unbuffered
+        //             continue;
+        //         }
+        //
+        //         // We have to query the tree with the fat AABB so that
+        //         // we don't fail to create a pair that may touch later.
+        //         const fatAABB = tree.getFatAABB(queryProxyId);
+        //
+        //         // Query tree, create pairs and add them pair buffer.
+        //         this.m_queryProxyId = queryProxyId;
+        //         tree.query(fatAABB, this.queryCallback);
+        //     }
+        //     buf.length = 0;
+        //
+        //     // Try to keep the tree balanced.
+        //     // this.m_tree.rebalance(4);
+        // }
 
     static s_updatePairs_result: number[] = [];
 

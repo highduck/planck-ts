@@ -69,7 +69,7 @@ class SeparationFunction {
 
             Vec2._crossVS(Vec2.sub(localPointB2, localPointB1), 1.0, this.m_axis);
             this.m_axis.normalize();
-            const normal = Rot.mulVec2(xfB.q, this.m_axis);
+            const normal = Rot.mulVec2(xfB, this.m_axis);
 
             this.m_localPoint = Vec2.mid(localPointB1, localPointB2);
             const pointB = Transform.mulVec2(xfB, this.m_localPoint);
@@ -93,7 +93,7 @@ class SeparationFunction {
             Vec2._sub(localPointA2, localPointA1, this.m_axis);
             Vec2._crossVS(this.m_axis, 1.0, this.m_axis);
             this.m_axis.normalize();
-            const normal = Rot.mulVec2(xfA.q, this.m_axis);
+            const normal = Rot.mulVec2(xfA, this.m_axis);
 
             Vec2._mid(localPointA1, localPointA2, this.m_localPoint);
             const pointA = Transform.mulVec2(xfA, this.m_localPoint);
@@ -120,11 +120,28 @@ class SeparationFunction {
         const type = this.m_type;
         if (type === SeparationFunctionType.e_points) {
             if (find) {
-                const axisA = Rot.mulTVec2(xfA.q, this.m_axis);
-                const axisB = Rot.mulTVec2(xfB.q, Vec2.neg(this.m_axis));
+                // const axisA = Rot.mulTVec2(xfA, this.m_axis);
+                // const axisB = Rot.mulTVec2(xfB, Vec2.neg(this.m_axis));
 
-                this.indexA = this.m_proxyA.getSupport(axisA);
-                this.indexB = this.m_proxyB.getSupport(axisB);
+                // INLINE:
+                // Rot.mulTVec2(xfA, this.m_axis) =>
+                // x: xfA.c * this.m_axis.x + xfA.s * this.m_axis.y
+                // y: -xfA.s * this.m_axis.x + xfA.c * this.m_axis.y
+
+                // Rot.mulTVec2(xfB, Vec2.neg(this.m_axis)) =>
+                // x: -xfB.c * this.m_axis.x - xfB.s * this.m_axis.y
+                // y: xfB.s * this.m_axis.x - xfB.c * this.m_axis.y
+
+                // this.indexA = this.m_proxyA.getSupport(axisA);
+                // this.indexB = this.m_proxyB.getSupport(axisB);
+                this.indexA = this.m_proxyA.getSupport(
+                    xfA.c * this.m_axis.x + xfA.s * this.m_axis.y,
+                    -xfA.s * this.m_axis.x + xfA.c * this.m_axis.y
+                );
+                this.indexB = this.m_proxyB.getSupport(
+                    -xfB.c * this.m_axis.x - xfB.s * this.m_axis.y,
+                    xfB.s * this.m_axis.x - xfB.c * this.m_axis.y
+                );
             }
 
             const localPointA = this.m_proxyA.getVertex(this.indexA);
@@ -136,14 +153,20 @@ class SeparationFunction {
             const sep = Vec2.dot(pointB, this.m_axis) - Vec2.dot(pointA, this.m_axis);
             return sep;
         } else if (type === SeparationFunctionType.e_faceA) {
-            const normal = Rot.mulVec2(xfA.q, this.m_axis);
+            const normal = Rot.mulVec2(xfA, this.m_axis);
             const pointA = Transform.mulVec2(xfA, this.m_localPoint);
 
             if (find) {
-                const axisB = Rot.mulTVec2(xfB.q, Vec2.neg(normal));
+                // const axisB = Rot.mulTVec2(xfB, Vec2.neg(normal));
+                // INLINE:
+                // Rot.mulTVec2(xfB, Vec2.neg(normal)) =>
+                // new Vec2(-xfB.c * normal.x - xfB.s * normal.y, xfB.s * normal.x - xfB.c * normal.y);
 
                 this.indexA = -1;
-                this.indexB = this.m_proxyB.getSupport(axisB);
+                this.indexB = this.m_proxyB.getSupport(
+                    -xfB.c * normal.x - xfB.s * normal.y,
+                    xfB.s * normal.x - xfB.c * normal.y
+                );
             }
 
             const localPointB = this.m_proxyB.getVertex(this.indexB);
@@ -152,14 +175,21 @@ class SeparationFunction {
             const sep = Vec2.dot(pointB, normal) - Vec2.dot(pointA, normal);
             return sep;
         } else if (type === SeparationFunctionType.e_faceB) {
-            const normal = Rot.mulVec2(xfB.q, this.m_axis);
+            const normal = Rot.mulVec2(xfB, this.m_axis);
             const pointB = Transform.mulVec2(xfB, this.m_localPoint);
 
             if (find) {
-                const axisA = Rot.mulTVec2(xfA.q, Vec2.neg(normal));
+                // const axisA = Rot.mulTVec2(xfA, Vec2.neg(normal));
+                // INLINE:
+                // Rot.mulTVec2(xfA, Vec2.neg(normal)) =>
+                // new Vec2(-xfA.c * normal.x - xfA.s * normal.y, xfA.s * normal.x - xfA.c * normal.y);
 
                 this.indexB = -1;
-                this.indexA = this.m_proxyA.getSupport(axisA);
+                // this.indexA = this.m_proxyA.getSupport(axisA);
+                this.indexA = this.m_proxyA.getSupport(
+                    -xfA.c * normal.x - xfA.s * normal.y,
+                    xfA.s * normal.x - xfA.c * normal.y
+                );
             }
 
             const localPointA = this.m_proxyA.getVertex(this.indexA);

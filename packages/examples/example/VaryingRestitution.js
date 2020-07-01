@@ -1,4 +1,4 @@
-import {Body, CircleShape, EdgeShape, Vec2, World} from 'planck-ts-core';
+import {Body, CircleShape, EdgeShape, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // Note: even with a restitution of 1.0, there is some energy change

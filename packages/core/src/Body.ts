@@ -1,4 +1,4 @@
-import {Vec2} from "./common/Vec2";
+import {IVec2, Vec2} from "./common/Vec2";
 import {assert} from "./util/common";
 import {MathUtil} from "./common/Math";
 import {Velocity} from "./common/Velocity";
@@ -172,13 +172,12 @@ export class Body {
         }
 
         // the body origin transform
-        this.m_xf.p.copyFrom(def.position ?? Vec2.zero());
-        this.m_xf.q.setAngle(def.angle ?? 0);
+        this.m_xf.setPosAngle(def.position ?? Vec2.ZERO, def.angle ?? 0);
 
         // the swept motion for CCD
         this.m_sweep.setTransform(this.m_xf);
 
-        this.m_linearVelocity.copyFrom(def.linearVelocity ?? Vec2.zero());
+        this.m_linearVelocity.copyFrom(def.linearVelocity ?? Vec2.ZERO);
         this.m_angularVelocity = def.angularVelocity ?? 0;
 
         this.m_linearDamping = def.linearDamping ?? 0;
@@ -437,7 +436,7 @@ export class Body {
      * @param angle The world rotation in radians.
      */
 
-    setTransform(position: Vec2, angle: number) {
+    setTransform(position: IVec2, angle: number) {
         PLANCK_ASSERT && assert(!this.isWorldLocked());
         if (this.isWorldLocked()) {
             return;
@@ -463,7 +462,7 @@ export class Body {
 
         const broadPhase = this.m_world.m_broadPhase;
         for (let f = this.m_fixtureList; f; f = f.m_next) {
-            f.synchronize(broadPhase, this.m_xf, this.m_xf);
+            f.synchronize1(broadPhase, xf);
         }
     }
 
@@ -472,13 +471,12 @@ export class Body {
     }
 
     synchronizeFixtures() {
-        const xf = Transform.identity();
-
-        this.m_sweep.getTransform(xf, 0);
+        const xf0 = Transform.identity();
+        this.m_sweep.getTransform(xf0, 0);
 
         const broadPhase = this.m_world.m_broadPhase;
         for (let f = this.m_fixtureList; f; f = f.m_next) {
-            f.synchronize(broadPhase, xf, this.m_xf);
+            f.synchronize(broadPhase, xf0, this.m_xf);
         }
     }
 
@@ -496,8 +494,8 @@ export class Body {
     /**
      * Get the world position for the body's origin.
      */
-    getPosition() {
-        return this.m_xf.p;
+    getPosition(): IVec2 {
+        return this.m_xf;
     }
 
     setPosition(p: Vec2) {
@@ -512,7 +510,7 @@ export class Body {
     }
 
     setAngle(angle: number) {
-        this.setTransform(this.m_xf.p, angle);
+        this.setTransform(this.m_xf, angle);
     }
 
     /**
@@ -672,8 +670,8 @@ export class Body {
 
         // Static and kinematic bodies have zero mass.
         if (this.m_type !== BodyType.DYNAMIC) {
-            this.m_sweep.c0.copyFrom(this.m_xf.p);
-            this.m_sweep.c.copyFrom(this.m_xf.p);
+            this.m_sweep.c0.copyFrom(this.m_xf);
+            this.m_sweep.c.copyFrom(this.m_xf);
             this.m_sweep.a0 = this.m_sweep.a;
             return;
         }
@@ -1034,13 +1032,13 @@ export class Body {
      * Get the corresponding world vector of a local vector.
      */
     getWorldVector(localVector: Vec2): Vec2 {
-        return Rot.mulVec2(this.m_xf.q, localVector);
+        return Rot.mulVec2(this.m_xf, localVector);
     }
 
     /**
      * Gets the corresponding local point of a world point.
      */
-    getLocalPoint(worldPoint: Vec2): Vec2 {
+    getLocalPoint(worldPoint: IVec2): Vec2 {
         return Transform.mulTVec2(this.m_xf, worldPoint);
     }
 
@@ -1049,6 +1047,6 @@ export class Body {
      * Gets the corresponding local vector of a world vector.
      */
     getLocalVector(worldVector: Vec2): Vec2 {
-        return Rot.mulTVec2(this.m_xf.q, worldVector);
+        return Rot.mulTVec2(this.m_xf, worldVector);
     }
 }

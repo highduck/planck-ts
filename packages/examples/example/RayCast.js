@@ -1,6 +1,5 @@
-import {BoxShape, CircleShape, EdgeShape, PolygonShape, Transform, Vec2, World} from 'planck-ts-core';
+import {BoxShape, CircleShape, EdgeShape, PolygonShape, Transform, Vec2, World, MathUtil} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
-import {MathUtil} from "planck-ts-core/dist/common/Math";
 
 // This test demonstrates how to use the world ray-cast feature.
 // NOTE: we are intentionally filtering one of the polygons, therefore

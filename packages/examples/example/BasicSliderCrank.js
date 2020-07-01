@@ -1,4 +1,4 @@
-import {Body, BoxShape, PrismaticJoint, RevoluteJoint, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, PrismaticJoint, RevoluteJoint, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // A basic slider crank created for GDC tutorial: Understanding Constraints

@@ -1,4 +1,4 @@
-import {Body, BoxShape, DistanceJoint, EdgeShape, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, DistanceJoint, EdgeShape, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // This tests distance joints, body destruction, and joint destruction.

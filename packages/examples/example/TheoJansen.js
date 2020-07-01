@@ -8,7 +8,7 @@ import {
     RevoluteJoint,
     Vec2,
     World
-} from 'planck-ts-core';
+} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 // Inspired by a contribution by roman_m

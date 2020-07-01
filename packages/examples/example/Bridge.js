@@ -1,4 +1,4 @@
-import {Body, BoxShape, CircleShape, EdgeShape, PolygonShape, RevoluteJoint, Vec2, World} from 'planck-ts-core';
+import {Body, BoxShape, CircleShape, EdgeShape, PolygonShape, RevoluteJoint, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('Bridge', function (_) {

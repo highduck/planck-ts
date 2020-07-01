@@ -1,4 +1,4 @@
-import {AABB, Body, BoxShape, CircleShape, EdgeShape, PolygonShape, Transform, Vec2, World, testOverlap} from 'planck-ts-core';
+import {AABB, Body, BoxShape, CircleShape, EdgeShape, PolygonShape, Transform, Vec2, World, testOverlap} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('PolyShapes', function (testbed) {

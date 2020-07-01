@@ -5,10 +5,12 @@ import {MathUtil} from "../common/Math";
 import {Settings} from "../Settings";
 import {TimeStep} from "../TimeStep";
 
-const inactiveLimit = 0;
-const atLowerLimit = 1;
-const atUpperLimit = 2;
-const equalLimits = 3;
+const enum LimitState {
+    inactiveLimit = 0,
+    atLowerLimit = 1,
+    atUpperLimit = 2,
+    equalLimits = 3
+}
 
 /**
  * @typedef {Object} RopeJointDef
@@ -56,7 +58,7 @@ export class RopeJoint extends Joint {
     m_mass = 0.0;
     m_impulse = 0.0;
     m_length = 0.0;
-    m_state = inactiveLimit;
+    m_state = LimitState.inactiveLimit;
 
     // Solver temp
     m_u = Vec2.zero();
@@ -103,7 +105,7 @@ export class RopeJoint extends Joint {
     /**
      * Set/Get the maximum length of the rope.
      */
-    setMaxLength(length:number) {
+    setMaxLength(length: number) {
         this.m_maxLength = length;
     }
 
@@ -124,15 +126,15 @@ export class RopeJoint extends Joint {
         return this.m_bodyB.getWorldPoint(this.m_localAnchorB);
     }
 
-    getReactionForce(inv_dt:number) {
+    getReactionForce(inv_dt: number) {
         return Vec2.mul(this.m_impulse, this.m_u).mul(inv_dt);
     }
 
-    getReactionTorque(inv_dt:number) {
+    getReactionTorque(inv_dt: number) {
         return 0.0;
     }
 
-    initVelocityConstraints(step:TimeStep) {
+    initVelocityConstraints(step: TimeStep) {
         this.m_localCenterA = this.m_bodyA.m_sweep.localCenter;
         this.m_localCenterB = this.m_bodyB.m_sweep.localCenter;
         this.m_invMassA = this.m_bodyA.m_invMass;
@@ -163,9 +165,9 @@ export class RopeJoint extends Joint {
 
         const C = this.m_length - this.m_maxLength; // float
         if (C > 0.0) {
-            this.m_state = atUpperLimit;
+            this.m_state = LimitState.atUpperLimit;
         } else {
-            this.m_state = inactiveLimit;
+            this.m_state = LimitState.inactiveLimit;
         }
 
         if (this.m_length > Settings.linearSlop) {
@@ -207,7 +209,7 @@ export class RopeJoint extends Joint {
         this.m_bodyB.c_velocity.w = wB;
     }
 
-    solveVelocityConstraints(step:TimeStep) {
+    solveVelocityConstraints(step: TimeStep) {
         const vA = this.m_bodyA.c_velocity.v;
         let wA = this.m_bodyA.c_velocity.w;
         const vB = this.m_bodyB.c_velocity.v;
@@ -241,7 +243,7 @@ export class RopeJoint extends Joint {
         this.m_bodyB.c_velocity.w = wB;
     }
 
-    solvePositionConstraints(step:TimeStep) {
+    solvePositionConstraints(step: TimeStep) {
         const cA = this.m_bodyA.c_position.c; // Vec2
         let aA = this.m_bodyA.c_position.a; // float
         const cB = this.m_bodyB.c_position.c; // Vec2

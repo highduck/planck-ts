@@ -8,12 +8,12 @@ export {World, WorldDef} from './World';
 export {Body, BodyDef} from './Body';
 
 // shapes
+export {Shape} from './Shape';
 export {BoxShape} from './shape/BoxShape';
 export {CircleShape} from './shape/CircleShape';
 export {EdgeShape} from './shape/EdgeShape';
 export {ChainShape} from './shape/ChainShape';
 export {PolygonShape} from './shape/PolygonShape';
-//export {Shape} from './Shape';
 
 export {DistanceJoint, DistanceJointDef} from './joint/DistanceJoint';
 export {FrictionJoint, FrictionJointDef} from './joint/FrictionJoint';

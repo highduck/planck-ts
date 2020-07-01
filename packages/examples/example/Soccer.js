@@ -1,4 +1,4 @@
-import {Body, ChainShape, CircleShape, Settings, Vec2, World,} from 'planck-ts-core';
+import {Body, ChainShape, CircleShape, Settings, Vec2, World,} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 
 testbed('Soccer', function (testbed) {
@@ -79,7 +79,7 @@ testbed('Soccer', function (testbed) {
         player.render = {fill: '#0077ff', stroke: 'black'};
     });
 
-    team().map((v) => v.scale(-1, 1)).forEach(function (p) {
+    team().map((v) => v.clone().scale(-1, 1)).forEach(function (p) {
         const player = world.createBody(playerBodyDef);
         player.setPosition(p);
         player.setAngle(Math.PI);

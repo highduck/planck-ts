@@ -5,8 +5,9 @@ import {Transform} from "../common/Transform";
 import {Vec2} from "../common/Vec2";
 import {ContactFeatureType, Manifold, ManifoldType} from "../Manifold";
 import {Fixture} from "../Fixture";
+import {ShapeType} from "../Shape";
 
-Contact.addType(CircleShape.TYPE, CircleShape.TYPE, CircleCircleContact);
+Contact.addType(ShapeType.CIRCLE, ShapeType.CIRCLE, CircleCircleContact);
 
 function CircleCircleContact(manifold: Manifold,
                              xfA: Transform, fixtureA: Fixture, indexA: number,

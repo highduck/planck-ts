@@ -1,4 +1,4 @@
-import {BoxShape, Transform, Vec2, World} from 'planck-ts-core';
+import {BoxShape, Transform, Vec2, World} from 'planck-ts';
 import {testbed} from "planck-ts-testbed";
 import {SimplexCache, DistanceInput, DistanceOutput, Distance} from "planck-ts";
 
