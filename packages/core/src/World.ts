@@ -790,7 +790,7 @@ export class World {
      * Call this method to find new contacts.
      */
     findNewContacts() {
-        this.m_broadPhase.updatePairs(this.createContact);
+        this.m_broadPhase.updatePairs_(this.createContact);
     }
 
     /**

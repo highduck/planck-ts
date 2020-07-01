@@ -1,4 +1,4 @@
-import { World, AABB } from "planck-ts-core";
+import { World, AABB } from "planck-ts";
 
 export interface Testbed {
   isPaused(): boolean;

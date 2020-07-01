@@ -6,8 +6,8 @@
     "isolatedModules": false,
     "rootDir": "./src",
     "paths": {
-      "planck-ts-core": [
-        "../planck-core/src"
+      "planck-ts": [
+        "../core/src"
       ]
     }
   },

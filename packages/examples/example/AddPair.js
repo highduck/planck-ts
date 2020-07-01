@@ -1,6 +1,6 @@
 import {Body, BoxShape, CircleShape, Vec2, World} from 'planck-ts-core';
 import {testbed} from "planck-ts-testbed";
-import {MathUtil} from "planck-ts-core";
+import {MathUtil} from "planck-ts";
 
 testbed('AddPair', function (testbed) {
     const world = new World();

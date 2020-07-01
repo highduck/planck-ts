@@ -46,9 +46,9 @@
     "clean": "rimraf dist/"
   },
   "devDependencies": {
-    "@types/node": "^14.0.13",
-    "typescript": "^3.9.5",
-    "planck-ts-core": "^0.0.1",
-    "stage-js": "^0.8.11"
+    "@types/node": "^14.0.14",
+    "planck-ts": "^0.0.1",
+    "stage-js": "^0.8.11",
+    "typescript": "^3.9.5"
   }
 }

@@ -48,7 +48,7 @@ export class TreeNode {
  */
 export class DynamicTree {
     m_root: TreeNode | null = null;
-    m_nodes: { [id: number]: TreeNode } = {}
+    readonly m_nodes = new Map<number, TreeNode>();
     m_lastProxyId = 0;
 
     readonly m_pool = new Pool<TreeNode>({
@@ -63,7 +63,7 @@ export class DynamicTree {
      * @return the proxy user data or 0 if the id is invalid.
      */
     getUserData(id: number): any {
-        const node = this.m_nodes[id];
+        const node = this.m_nodes.get(id)!;
         PLANCK_ASSERT && assert(!!node);
         return node.userData;
     }
@@ -75,7 +75,7 @@ export class DynamicTree {
      */
 
     getFatAABB(id: number): AABB {
-        const node = this.m_nodes[id];
+        const node = this.m_nodes.get(id)!;
         PLANCK_ASSERT && assert(!!node);
         return node.aabb;
     }
@@ -89,7 +89,7 @@ export class DynamicTree {
         node.child1 = null;
         node.child2 = null;
         node.height = -1;
-        this.m_nodes[node.id] = node;
+        this.m_nodes.set(node.id, node);
         return node;
     }
 
@@ -97,7 +97,7 @@ export class DynamicTree {
         this.m_pool.release(node);
         node.height = -1;
         // TODO: set null ?
-        delete this.m_nodes[node.id];
+        this.m_nodes.delete(node.id);
     }
 
     /**
@@ -126,7 +126,7 @@ export class DynamicTree {
      * Destroy a proxy. This asserts if the id is invalid.
      */
     destroyProxy(id: number) {
-        const node = this.m_nodes[id];
+        const node = this.m_nodes.get(id)!;
 
         PLANCK_ASSERT && assert(!!node);
         PLANCK_ASSERT && assert(node.isLeaf());
@@ -150,7 +150,7 @@ export class DynamicTree {
         PLANCK_ASSERT && assert(AABB.isValid(aabb));
         PLANCK_ASSERT && assert(!d || Vec2.isValid(d));
 
-        const node = this.m_nodes[id];
+        const node = this.m_nodes.get(id)!;
 
         PLANCK_ASSERT && assert(!!node);
         PLANCK_ASSERT && assert(node.isLeaf());
@@ -495,7 +495,7 @@ export class DynamicTree {
      * Compute the height of a sub-tree.
      */
     computeHeight(id: number): number {
-        let node: TreeNode | null = id !== 0 ? this.m_nodes[id] : this.m_root;
+        let node = id !== 0 ? this.m_nodes.get(id) : this.m_root;
         // _ASSERT && common.assert(0 <= id && id < this.m_nodeCapacity);
 
         if (!node || node.isLeaf()) {
@@ -718,6 +718,31 @@ export class DynamicTree {
         }
 
         stackPool.release(stack);
+    }
+
+    static s_stack:TreeNode[] = [];
+
+    query_(aabb: AABB, out:number[]):number {
+        const stack = DynamicTree.s_stack;
+        stack[0] = this.m_root!;
+        let size = 1;
+        let n = 0;
+        while (size > 0) {
+            const node = stack[--size];
+            if (node == null) {
+                continue;
+            }
+
+            if (AABB.testOverlap(node.aabb, aabb)) {
+                if (node.isLeaf()) {
+                    out[n++] = node.id;
+                } else {
+                    stack[size++] = node.child1!;
+                    stack[size++] = node.child2!;
+                }
+            }
+        }
+        return n;
     }
 
     /**

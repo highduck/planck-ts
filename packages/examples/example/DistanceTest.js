@@ -1,6 +1,6 @@
 import {BoxShape, Transform, Vec2, World} from 'planck-ts-core';
 import {testbed} from "planck-ts-testbed";
-import {SimplexCache, DistanceInput, DistanceOutput, Distance} from "planck-ts-core";
+import {SimplexCache, DistanceInput, DistanceOutput, Distance} from "planck-ts";
 
 testbed('DistanceTest', function (testbed) {
     const world = new World();
