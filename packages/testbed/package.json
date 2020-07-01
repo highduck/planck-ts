@@ -40,10 +40,7 @@
     }
   ],
   "scripts": {
-    "ci": "run build && run test:coverage",
-    "build": "webpack --config webpack.config.cjs",
-    "watch": "tsc -b -w -f tsconfig.esm.json",
-    "clean": "rimraf dist/"
+    "ci": "echo SKIP"
   },
   "devDependencies": {
     "@types/node": "^14.0.14",

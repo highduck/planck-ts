@@ -1,8 +1,6 @@
 import {IVec2, Vec2} from "./common/Vec2";
 import {assert} from "./util/common";
 import {MathUtil} from "./common/Math";
-import {Velocity} from "./common/Velocity";
-import {Position} from "./common/Position";
 import {Sweep} from "./common/Sweep";
 import {Transform} from "./common/Transform";
 import {MassData} from "./MassData";
@@ -121,8 +119,10 @@ export class Body {
     readonly m_sweep = new Sweep();
 
 // position and velocity correction
-    readonly c_velocity = new Velocity();
-    readonly c_position = new Position();
+    readonly c_vel = new Vec2(0.0, 0.0);
+    c_w = 0.0;
+    readonly c_pos = new Vec2(0.0, 0.0);
+    c_a = 0.0;
 
     readonly m_force = Vec2.zero();
     m_torque = 0.0;

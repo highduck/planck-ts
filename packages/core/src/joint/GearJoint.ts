@@ -248,21 +248,21 @@ export class GearJoint extends Joint {
         this.m_iC = this.m_bodyC.m_invI;
         this.m_iD = this.m_bodyD.m_invI;
 
-        const aA = this.m_bodyA.c_position.a;
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
+        const aA = this.m_bodyA.c_a;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
 
-        const aB = this.m_bodyB.c_position.a;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
+        const aB = this.m_bodyB.c_a;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
-        const aC = this.m_bodyC.c_position.a;
-        const vC = this.m_bodyC.c_velocity.v;
-        let wC = this.m_bodyC.c_velocity.w;
+        const aC = this.m_bodyC.c_a;
+        const vC = this.m_bodyC.c_vel;
+        let wC = this.m_bodyC.c_w;
 
-        const aD = this.m_bodyD.c_position.a;
-        const vD = this.m_bodyD.c_velocity.v;
-        let wD = this.m_bodyD.c_velocity.w;
+        const aD = this.m_bodyD.c_a;
+        const vD = this.m_bodyD.c_vel;
+        let wD = this.m_bodyD.c_w;
 
         const qA = Rot.forAngle(aA);
         const qB = Rot.forAngle(aB);
@@ -322,24 +322,24 @@ export class GearJoint extends Joint {
         }
 
         // this.m_bodyA.c_velocity.v.copyFrom(vA);
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         // this.m_bodyB.c_velocity.v.copyFrom(vB);
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
         // this.m_bodyC.c_velocity.v.copyFrom(vC);
-        this.m_bodyC.c_velocity.w = wC;
+        this.m_bodyC.c_w = wC;
         // this.m_bodyD.c_velocity.v.copyFrom(vD);
-        this.m_bodyD.c_velocity.w = wD;
+        this.m_bodyD.c_w = wD;
     }
 
     solveVelocityConstraints(step: TimeStep) {
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
-        const vC = this.m_bodyC.c_velocity.v;
-        let wC = this.m_bodyC.c_velocity.w;
-        const vD = this.m_bodyD.c_velocity.v;
-        let wD = this.m_bodyD.c_velocity.w;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
+        const vC = this.m_bodyC.c_vel;
+        let wC = this.m_bodyC.c_w;
+        const vD = this.m_bodyD.c_vel;
+        let wD = this.m_bodyD.c_w;
 
         const Cdot = Vec2.dot(this.m_JvAC, vA) - Vec2.dot(this.m_JvAC, vC)
             + Vec2.dot(this.m_JvBD, vB) - Vec2.dot(this.m_JvBD, vD)
@@ -359,24 +359,24 @@ export class GearJoint extends Joint {
         wD -= this.m_iD * impulse * this.m_JwD;
 
         // this.m_bodyA.c_velocity.v.copyFrom(vA);
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         // this.m_bodyB.c_velocity.v.copyFrom(vB);
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
         // this.m_bodyC.c_velocity.v.copyFrom(vC);
-        this.m_bodyC.c_velocity.w = wC;
+        this.m_bodyC.c_w = wC;
         // this.m_bodyD.c_velocity.v.copyFrom(vD);
-        this.m_bodyD.c_velocity.w = wD;
+        this.m_bodyD.c_w = wD;
     }
 
     solvePositionConstraints(step: TimeStep) {
-        const cA = this.m_bodyA.c_position.c;
-        let aA = this.m_bodyA.c_position.a;
-        const cB = this.m_bodyB.c_position.c;
-        let aB = this.m_bodyB.c_position.a;
-        const cC = this.m_bodyC.c_position.c;
-        let aC = this.m_bodyC.c_position.a;
-        const cD = this.m_bodyD.c_position.c;
-        let aD = this.m_bodyD.c_position.a;
+        const cA = this.m_bodyA.c_pos;
+        let aA = this.m_bodyA.c_a;
+        const cB = this.m_bodyB.c_pos;
+        let aB = this.m_bodyB.c_a;
+        const cC = this.m_bodyC.c_pos;
+        let aC = this.m_bodyC.c_a;
+        const cD = this.m_bodyD.c_pos;
+        let aD = this.m_bodyD.c_a;
 
         const qA = Rot.forAngle(aA);
         const qB = Rot.forAngle(aB);
@@ -452,13 +452,13 @@ export class GearJoint extends Joint {
         aD -= this.m_iD * impulse * JwD;
 
         // this.m_bodyA.c_position.c.copyFrom(cA);
-        this.m_bodyA.c_position.a = aA;
+        this.m_bodyA.c_a = aA;
         // this.m_bodyB.c_position.c.copyFrom(cB);
-        this.m_bodyB.c_position.a = aB;
+        this.m_bodyB.c_a = aB;
         // this.m_bodyC.c_position.c.copyFrom(cC);
-        this.m_bodyC.c_position.a = aC;
+        this.m_bodyC.c_a = aC;
         // this.m_bodyD.c_position.c.copyFrom(cD);
-        this.m_bodyD.c_position.a = aD;
+        this.m_bodyD.c_a = aD;
 
         // TODO_ERIN not implemented
         return linearError < Settings.linearSlop;

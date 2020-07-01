@@ -322,15 +322,15 @@ export class WheelJoint extends Joint {
         const iA = this.m_invIA;
         const iB = this.m_invIB; // float
 
-        const cA = this.m_bodyA.c_position.c;
-        const aA = this.m_bodyA.c_position.a;
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
+        const cA = this.m_bodyA.c_pos;
+        const aA = this.m_bodyA.c_a;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
 
-        const cB = this.m_bodyB.c_position.c;
-        const aB = this.m_bodyB.c_position.a;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
+        const cB = this.m_bodyB.c_pos;
+        const aB = this.m_bodyB.c_a;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         const qA = Rot.forAngle(aA);
         const qB = Rot.forAngle(aB);
@@ -432,9 +432,9 @@ export class WheelJoint extends Joint {
         }
 
         // this.m_bodyA.c_velocity.v.set(vA);
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         // this.m_bodyB.c_velocity.v.set(vB);
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solveVelocityConstraints(step: TimeStep) {
@@ -443,10 +443,10 @@ export class WheelJoint extends Joint {
         const iA = this.m_invIA;
         const iB = this.m_invIB; // float
 
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         // Solve spring constraint
         {
@@ -501,16 +501,16 @@ export class WheelJoint extends Joint {
         }
 
         // this.m_bodyA.c_velocity.v.set(vA);
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         // this.m_bodyB.c_velocity.v.set(vB);
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solvePositionConstraints(step: TimeStep) {
-        const cA = this.m_bodyA.c_position.c;
-        let aA = this.m_bodyA.c_position.a;
-        const cB = this.m_bodyB.c_position.c;
-        let aB = this.m_bodyB.c_position.a;
+        const cA = this.m_bodyA.c_pos;
+        let aA = this.m_bodyA.c_a;
+        const cB = this.m_bodyB.c_pos;
+        let aB = this.m_bodyB.c_a;
 
         const qA = Rot.forAngle(aA);
         const qB = Rot.forAngle(aB);
@@ -548,9 +548,9 @@ export class WheelJoint extends Joint {
         aB += this.m_invIB * LB;
 
         // this.m_bodyA.c_position.c.set(cA);
-        this.m_bodyA.c_position.a = aA;
+        this.m_bodyA.c_a = aA;
         // this.m_bodyB.c_position.c.set(cB);
-        this.m_bodyB.c_position.a = aB;
+        this.m_bodyB.c_a = aB;
 
         return Math.abs(C) <= Settings.linearSlop;
     }

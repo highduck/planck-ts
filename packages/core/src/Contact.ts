@@ -509,14 +509,6 @@ export class Contact {
         const bodyA = fixtureA.getBody();
         const bodyB = fixtureB.getBody();
 
-        // const velocityA = bodyA.c_velocity;
-        // const velocityB = bodyB.c_velocity;
-        const positionA = bodyA.c_position;
-        const positionB = bodyB.c_position;
-
-        // const localCenterA = Vec2.clone(this.p_localCenterA);
-        // const localCenterB = Vec2.clone(this.p_localCenterB);
-
         let mA = 0.0;
         let iA = 0.0;
         if (!toi || (bodyA === toiA || bodyA === toiB)) {
@@ -532,12 +524,12 @@ export class Contact {
         }
 
         // const cA = Vec2.clone(positionA.c);
-        const cA = positionA.c;
-        let aA = positionA.a;
+        const cA = bodyA.c_pos;
+        let aA = bodyA.c_a;
 
         // const cB = Vec2.clone(positionB.c);
-        const cB = positionB.c;
-        let aB = positionB.a;
+        const cB = bodyB.c_pos;
+        let aB = bodyB.c_a;
 
         let minSeparation = 0.0;
 
@@ -615,10 +607,10 @@ export class Contact {
         }
 
         // positionA.c.copyFrom(cA);
-        positionA.a = aA;
+        bodyA.c_a = aA;
 
         // positionB.c.copyFrom(cB);
-        positionB.a = aB;
+        bodyB.c_a = aB;
 
         return minSeparation;
     }
@@ -630,11 +622,11 @@ export class Contact {
         const bodyA = fixtureA.getBody();
         const bodyB = fixtureB.getBody();
 
-        const velocityA = bodyA.c_velocity;
-        const velocityB = bodyB.c_velocity;
-
-        const positionA = bodyA.c_position;
-        const positionB = bodyB.c_position;
+        // const velocityA = bodyA.c_vel;
+        // const velocityB = bodyB.c_vel;
+        //
+        // const positionA = bodyA.c_pos;
+        // const positionB = bodyB.c_pos;
 
         const radiusA = this.p_radiusA;
         const radiusB = this.p_radiusB;
@@ -645,15 +637,15 @@ export class Contact {
         const iA = this.v_invIA;
         const iB = this.v_invIB;
 
-        const cA = positionA.c;
-        const aA = positionA.a;
-        const vA = velocityA.v;
-        const wA = velocityA.w;
+        const cA = bodyA.c_pos;
+        const aA = bodyA.c_a;
+        const vA = bodyA.c_vel;
+        const wA = bodyA.c_w;
 
-        const cB = positionB.c;
-        const aB = positionB.a;
-        const vB = velocityB.v;
-        const wB = velocityB.w;
+        const cB = bodyB.c_pos;
+        const aB = bodyB.c_a;
+        const vB = bodyB.c_vel;
+        const wB = bodyB.c_w;
 
         PLANCK_ASSERT && assert(manifold.pointCount > 0);
 
@@ -762,8 +754,8 @@ export class Contact {
         const bodyA = fixtureA.getBody();
         const bodyB = fixtureB.getBody();
 
-        const velocityA = bodyA.c_velocity;
-        const velocityB = bodyB.c_velocity;
+        const velocityA = bodyA.c_vel;
+        const velocityB = bodyB.c_vel;
         // const positionA = bodyA.c_position;
         // const positionB = bodyB.c_position;
 
@@ -772,10 +764,10 @@ export class Contact {
         const mB = this.v_invMassB;
         const iB = this.v_invIB;
 
-        const vA = velocityA.v;
-        let wA = velocityA.w;
-        const vB = velocityB.v;
-        let wB = velocityB.w;
+        const vA = bodyA.c_vel;
+        let wA = bodyA.c_w;
+        const vB = bodyB.c_vel;
+        let wB = bodyB.c_w;
 
         const normal = this.v_normal;
         const tangent = Vec2.crossVS(normal, 1.0);
@@ -791,9 +783,9 @@ export class Contact {
         }
 
         // velocityA.v.copyFrom(vA); // mod by ref!
-        velocityA.w = wA;
+        bodyA.c_w = wA;
         // velocityB.v.copyFrom(vB); // mod by ref!
-        velocityB.w = wB;
+        bodyB.c_w = wB;
     }
 
     storeConstraintImpulses(step: TimeStep) {
@@ -810,21 +802,15 @@ export class Contact {
         const bodyA = this.m_fixtureA.m_body;
         const bodyB = this.m_fixtureB.m_body;
 
-        const velocityA = bodyA.c_velocity;
-        // const positionA = bodyA.c_position;
-
-        const velocityB = bodyB.c_velocity;
-        // const positionB = bodyB.c_position;
-
         const mA = this.v_invMassA;
         const iA = this.v_invIA;
         const mB = this.v_invMassB;
         const iB = this.v_invIB;
 
-        const vA = velocityA.v;
-        let wA = velocityA.w;
-        const vB = velocityB.v;
-        let wB = velocityB.w;
+        const vA = bodyA.c_vel;
+        let wA = bodyA.c_w;
+        const vB = bodyB.c_vel;
+        let wB = bodyB.c_w;
 
         const normal = this.v_normal;
         //const tangent = Vec2.crossVS(normal, 1.0);
@@ -1243,10 +1229,10 @@ export class Contact {
         }
 
         // velocityA.v.copyFrom(vA); // mod by ref
-        velocityA.w = wA;
+        bodyA.c_w = wA;
 
         // velocityB.v.copyFrom(vB); // mod by ref
-        velocityB.w = wB;
+        bodyB.c_w = wB;
     }
 
     static addType(type1: ShapeType, type2: ShapeType, callback: EvaluateFunction) {

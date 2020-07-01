@@ -15,8 +15,8 @@ describe('CCD', function () {
         const c1 = new CircleShape(0, 0, 1);
 
         let input = new DistanceInput();
-        input.proxyA.set(c1, 0);
-        input.proxyB.set(c1, 0);
+        c1.computeDistanceProxy(input.proxyA, 0);
+        c1.computeDistanceProxy(input.proxyB, 0);
         input.transformA = Transform.create(0, 0, 0);
         input.transformB = Transform.create(1.9, 0, 0);
         input.useRadii = true;
@@ -28,8 +28,8 @@ describe('CCD', function () {
         console.log(output);
 
         input = new DistanceInput();
-        input.proxyA.set(c1, 0);
-        input.proxyB.set(c1, 0);
+        c1.computeDistanceProxy(input.proxyA, 0);
+        c1.computeDistanceProxy(input.proxyB, 0);
         input.transformA = Transform.create(0, 0, 0);
         input.transformB = Transform.create(2.1, 0, 0);
         input.useRadii = true;
@@ -45,8 +45,8 @@ describe('CCD', function () {
         const c1 = new CircleShape(0, 0, 1);
 
         const input = new TOIInput();
-        input.proxyA.set(c1, 0);
-        input.proxyB.set(c1, 0);
+        c1.computeDistanceProxy(input.proxyA, 0);
+        c1.computeDistanceProxy(input.proxyB, 0);
 
         input.sweepA = new Sweep();
         input.sweepA = new Sweep();

@@ -345,13 +345,13 @@ export class RevoluteJoint extends Joint {
         this.m_invIA = this.m_bodyA.m_invI;
         this.m_invIB = this.m_bodyB.m_invI;
 
-        const aA = this.m_bodyA.c_position.a;
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
+        const aA = this.m_bodyA.c_a;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
 
-        const aB = this.m_bodyB.c_position.a;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
+        const aB = this.m_bodyB.c_a;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         const qA = Rot.forAngle(aA);
         const qB = Rot.forAngle(aB);
@@ -443,16 +443,16 @@ export class RevoluteJoint extends Joint {
         }
 
         // this.m_bodyA.c_velocity.v = vA;
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         // this.m_bodyB.c_velocity.v = vB;
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solveVelocityConstraints(step: TimeStep) {
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         const mA = this.m_invMassA;
         const mB = this.m_invMassB; // float
@@ -549,16 +549,16 @@ export class RevoluteJoint extends Joint {
         }
 
         // this.m_bodyA.c_velocity.v = vA;
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         // this.m_bodyB.c_velocity.v = vB;
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solvePositionConstraints(step: TimeStep) {
-        const cA = this.m_bodyA.c_position.c;
-        let aA = this.m_bodyA.c_position.a;
-        const cB = this.m_bodyB.c_position.c;
-        let aB = this.m_bodyB.c_position.a;
+        const cA = this.m_bodyA.c_pos;
+        let aA = this.m_bodyA.c_a;
+        const cB = this.m_bodyB.c_pos;
+        let aB = this.m_bodyB.c_a;
 
         const qA = Rot.forAngle(aA);
         const qB = Rot.forAngle(aB);
@@ -637,9 +637,9 @@ export class RevoluteJoint extends Joint {
         }
 
         // this.m_bodyA.c_position.c.set(cA);
-        this.m_bodyA.c_position.a = aA;
+        this.m_bodyA.c_a = aA;
         // this.m_bodyB.c_position.c.set(cB);
-        this.m_bodyB.c_position.a = aB;
+        this.m_bodyB.c_a = aB;
 
         return positionError <= Settings.linearSlop
             && angularError <= Settings.angularSlop;

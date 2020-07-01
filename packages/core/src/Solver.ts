@@ -216,11 +216,11 @@ export class Solver {
             const body = this.m_bodies[i];
 
             // const c = Vec2.clone(body.m_sweep.c);
-            const c = body.c_position.c; // copy to dest and modify
+            const c = body.c_pos; // copy to dest and modify
             c.copyFrom(body.m_sweep.c);
             const a = body.m_sweep.a;
             // const v = Vec2.clone(body.m_linearVelocity);
-            const v = body.c_velocity.v;
+            const v = body.c_vel;
             v.copyFrom(body.m_linearVelocity); // copy to dest and modify
             let w = body.m_angularVelocity;
 
@@ -250,9 +250,9 @@ export class Solver {
 
             // WOOH!
             // body.c_position.c.copyFrom(c); //remove
-            body.c_position.a = a;
+            body.c_a = a;
             // body.c_velocity.v.copyFrom(v);//remove
-            body.c_velocity.w = w;
+            body.c_w = w;
         }
 
         for (let i = 0; i < this.m_contacts.length; ++i) {
@@ -310,10 +310,10 @@ export class Solver {
         for (let i = 0; i < this.m_bodies.length; ++i) {
             const body = this.m_bodies[i];
 
-            const c = body.c_position.c; // MODIFY IN-PLACE!
-            let a = body.c_position.a;
-            const v = body.c_velocity.v; // MODIFY IN-PLACE!
-            let w = body.c_velocity.w;
+            const c = body.c_pos; // MODIFY IN-PLACE!
+            let a = body.c_a;
+            const v = body.c_vel; // MODIFY IN-PLACE!
+            let w = body.c_w;
 
             // Check for large velocities
             const translationSquared = h * h * (v.x * v.x + v.y * v.y);
@@ -338,9 +338,9 @@ export class Solver {
             a += h * w;
 
             //body.c_position.c.copyFrom(c);  // MODIFY IN-PLACE!
-            body.c_position.a = a;
+            body.c_a = a;
             //body.c_velocity.v.copyFrom(v);  // MODIFY IN-PLACE!
-            body.c_velocity.w = w;
+            body.c_w = w;
         }
 
         PLANCK_DEBUG && this.printBodies('B: ');
@@ -378,10 +378,10 @@ export class Solver {
         for (let i = 0; i < this.m_bodies.length; ++i) {
             const body = this.m_bodies[i];
 
-            body.m_sweep.c.copyFrom(body.c_position.c);
-            body.m_sweep.a = body.c_position.a;
-            body.m_linearVelocity.copyFrom(body.c_velocity.v);
-            body.m_angularVelocity = body.c_velocity.w;
+            body.m_sweep.c.copyFrom(body.c_pos);
+            body.m_sweep.a = body.c_a;
+            body.m_linearVelocity.copyFrom(body.c_vel);
+            body.m_angularVelocity = body.c_w;
             body.synchronizeTransform();
         }
 
@@ -422,7 +422,7 @@ export class Solver {
     printBodies(tag: string) {
         for (let i = 0; i < this.m_bodies.length; ++i) {
             const b = this.m_bodies[i];
-            console.debug(tag, b.c_position.a, b.c_position.c.x, b.c_position.c.y, b.c_velocity.w, b.c_velocity.v.x, b.c_velocity.v.y);
+            console.debug(tag, b.c_a, b.c_pos.x, b.c_pos.y, b.c_w, b.c_vel.x, b.c_vel.y);
         }
     }
 
@@ -513,8 +513,8 @@ export class Solver {
                     PLANCK_ASSERT && assert(alpha0 < 1.0);
 
                     // Compute the time of impact in interval [0, minTOI]
-                    s_toiInput.proxyA.set(fA.getShape(), c.getChildIndexA());
-                    s_toiInput.proxyB.set(fB.getShape(), c.getChildIndexB());
+                    fA.getShape().computeDistanceProxy(s_toiInput.proxyA, c.getChildIndexA());
+                    fB.getShape().computeDistanceProxy(s_toiInput.proxyB, c.getChildIndexB());
                     s_toiInput.sweepA.set(bA.m_sweep);
                     s_toiInput.sweepB.set(bB.m_sweep);
                     s_toiInput.tMax = 1.0;
@@ -709,10 +709,10 @@ export class Solver {
         // Initialize the body state.
         for (let i = 0; i < this.m_bodies.length; ++i) {
             const body = this.m_bodies[i];
-            body.c_position.c.copyFrom(body.m_sweep.c);
-            body.c_position.a = body.m_sweep.a;
-            body.c_velocity.v.copyFrom(body.m_linearVelocity);
-            body.c_velocity.w = body.m_angularVelocity;
+            body.c_pos.copyFrom(body.m_sweep.c);
+            body.c_a = body.m_sweep.a;
+            body.c_vel.copyFrom(body.m_linearVelocity);
+            body.c_w = body.m_angularVelocity;
         }
 
         for (let i = 0; i < this.m_contacts.length; ++i) {
@@ -767,10 +767,10 @@ export class Solver {
         // }
 
         // Leap of faith to new safe state.
-        toiA.m_sweep.c0.copyFrom(toiA.c_position.c);
-        toiA.m_sweep.a0 = toiA.c_position.a;
-        toiB.m_sweep.c0.copyFrom(toiB.c_position.c);
-        toiB.m_sweep.a0 = toiB.c_position.a;
+        toiA.m_sweep.c0.copyFrom(toiA.c_pos);
+        toiA.m_sweep.a0 = toiA.c_a;
+        toiB.m_sweep.c0.copyFrom(toiB.c_pos);
+        toiB.m_sweep.a0 = toiB.c_a;
 
         // No warm starting is needed for TOI events because warm
         // starting impulses were applied in the discrete solver.
@@ -796,10 +796,10 @@ export class Solver {
             const body = this.m_bodies[i];
 
 
-            const c = body.c_position.c; // MODIFY BY REF!
-            let a = body.c_position.a;
-            const v = body.c_velocity.v; // MODIFY BY REF!
-            let w = body.c_velocity.w;
+            const c = body.c_pos; // MODIFY BY REF!
+            let a = body.c_a;
+            const v = body.c_vel; // MODIFY BY REF!
+            let w = body.c_w;
 
             // Check for large velocities
             const translation = Vec2.mul(h, v);
@@ -818,8 +818,8 @@ export class Solver {
             c.addMul(h, v);
             a += h * w;
 
-            body.c_position.a = a;
-            body.c_velocity.w = w;
+            body.c_a = a;
+            body.c_w = w;
 
             // Sync bodies
             body.m_sweep.c.copyFrom(c);

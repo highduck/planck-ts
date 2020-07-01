@@ -130,7 +130,7 @@ export class CircleShape extends Shape {
     }
 
     computeDistanceProxy(proxy: DistanceProxy, childIndex: number) {
-        proxy.m_vertices.push(this.m_p);
+        proxy.m_vertices[0] = this.m_p;
         proxy.m_count = 1;
         proxy.m_radius = this.m_radius;
     }

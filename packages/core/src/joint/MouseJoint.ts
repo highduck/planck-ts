@@ -160,13 +160,10 @@ export class MouseJoint extends Joint {
         this.m_invMassB = this.m_bodyB.m_invMass;
         this.m_invIB = this.m_bodyB.m_invI;
 
-        const position = this.m_bodyB.c_position;
-        const velocity = this.m_bodyB.c_velocity;
-
-        const cB = position.c;
-        const aB = position.a;
-        const vB = velocity.v;
-        let wB = velocity.w;
+        const cB = this.m_bodyB.c_pos;
+        const aB = this.m_bodyB.c_a;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         const qB = Rot.forAngle(aB);
 
@@ -228,13 +225,12 @@ export class MouseJoint extends Joint {
         }
 
         // velocity.v.set(vB);
-        velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solveVelocityConstraints(step: TimeStep) {
-        const velocity = this.m_bodyB.c_velocity;
-        const vB = velocity.v;
-        let wB = velocity.w;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         // Cdot = v + cross(w, r)
 
@@ -256,7 +252,7 @@ export class MouseJoint extends Joint {
         wB += this.m_invIB * Vec2.cross(this.m_rB, impulse);
 
         // velocity.v.copyFrom(vB);
-        velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solvePositionConstraints(step: TimeStep) {

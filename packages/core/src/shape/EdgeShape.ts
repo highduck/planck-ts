@@ -188,9 +188,9 @@ export class EdgeShape extends Shape {
         massData.I = 0.0;
     }
 
-    computeDistanceProxy(proxy: DistanceProxy) {
-        proxy.m_vertices.push(this.m_vertex1);
-        proxy.m_vertices.push(this.m_vertex2);
+    computeDistanceProxy(proxy: DistanceProxy, childIndex: number) {
+        proxy.m_vertices[0] = this.m_vertex1;
+        proxy.m_vertices[1] = this.m_vertex2;
         proxy.m_count = 2;
         proxy.m_radius = this.m_radius;
     }

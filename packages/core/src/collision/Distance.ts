@@ -2,7 +2,6 @@ import {Vec2} from "../common/Vec2";
 import {assert} from "../util/common";
 import {Transform} from "../common/Transform";
 import {MathUtil} from "../common/Math";
-import {Rot} from "../common/Rot";
 import {Settings} from "../Settings";
 import {Shape} from "../Shape";
 
@@ -53,8 +52,7 @@ export class DistanceOutput {
  * A distance proxy is used by the GJK algorithm. It encapsulates any shape.
  */
 export class DistanceProxy {
-    m_buffer: Vec2[] = []; // Vec2[2]
-    m_vertices: Vec2[] = []; // Vec2[]
+    m_vertices: Vec2[] = [];
     m_count = 0;
     m_radius = 0;
 
@@ -112,15 +110,15 @@ export class DistanceProxy {
         return bestVertex;
     }
 
-    /**
-     * Initialize the proxy using the given shape. The shape must remain in scope
-     * while the proxy is in use.
-     */
-    set(shape: Shape, index: number) {
-        // TODO remove, use shape instead
-        //PLANCK_ASSERT && assert(typeof shape.computeDistanceProxy === 'function');
-        shape.computeDistanceProxy(this, index);
-    }
+    // /**
+    //  * Initialize the proxy using the given shape. The shape must remain in scope
+    //  * while the proxy is in use.
+    //  */
+    // set(shape: Shape, index: number) {
+    //     // TODO remove, use shape instead
+    //     //PLANCK_ASSERT && assert(typeof shape.computeDistanceProxy === 'function');
+    //     shape.computeDistanceProxy(this, index);
+    // }
 }
 
 class SimplexVertex {
@@ -674,7 +672,7 @@ export function Distance(output: DistanceOutput, cache: SimplexCache, input: Dis
     --s_check_recursion_depth;
 }
 
-const s_distanceInput = new DistanceInput();
+const s_testOverlapDistanceInput = new DistanceInput();
 
 /**
  * Determine if two generic shapes overlap.
@@ -682,14 +680,10 @@ const s_distanceInput = new DistanceInput();
 export function testOverlap(shapeA: Shape, indexA: number,
                             shapeB: Shape, indexB: number,
                             xfA: Transform, xfB: Transform): boolean {
-    // can't be quickly cached with `s_distanceInput`,
-    // because we need unique fixtures from shape and index
-    // TODO:
-    // const input = s_distanceInput;
-
-    const input = new DistanceInput();
-    input.proxyA.set(shapeA, indexA);
-    input.proxyB.set(shapeB, indexB);
+    // const input = new DistanceInput();
+    const input = s_testOverlapDistanceInput;
+    shapeA.computeDistanceProxy(input.proxyA, indexA);
+    shapeB.computeDistanceProxy(input.proxyB, indexB);
     input.transformA = xfA;
     input.transformB = xfB;
     input.useRadii = true;

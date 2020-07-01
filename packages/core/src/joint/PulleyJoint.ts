@@ -200,15 +200,15 @@ export class PulleyJoint extends Joint {
         this.m_invIA = this.m_bodyA.m_invI;
         this.m_invIB = this.m_bodyB.m_invI;
 
-        const cA = this.m_bodyA.c_position.c;
-        const aA = this.m_bodyA.c_position.a;
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
+        const cA = this.m_bodyA.c_pos;
+        const aA = this.m_bodyA.c_a;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
 
-        const cB = this.m_bodyB.c_position.c;
-        const aB = this.m_bodyB.c_position.a;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
+        const cB = this.m_bodyB.c_pos;
+        const aB = this.m_bodyB.c_a;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         const qA = Rot.forAngle(aA);
         const qB = Rot.forAngle(aB);
@@ -267,16 +267,16 @@ export class PulleyJoint extends Joint {
         }
 
         // this.m_bodyA.c_velocity.v = vA;
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         // this.m_bodyB.c_velocity.v = vB;
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solveVelocityConstraints(step: TimeStep) {
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         const vpA = Vec2.add(vA, Vec2.crossSV(wA, this.m_rA));
         const vpB = Vec2.add(vB, Vec2.crossSV(wB, this.m_rB));
@@ -294,16 +294,16 @@ export class PulleyJoint extends Joint {
         wB += this.m_invIB * Vec2.cross(this.m_rB, PB);
 
         // this.m_bodyA.c_velocity.v = vA;
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         // this.m_bodyB.c_velocity.v = vB;
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solvePositionConstraints(step: TimeStep) {
-        const cA = this.m_bodyA.c_position.c;
-        let aA = this.m_bodyA.c_position.a;
-        const cB = this.m_bodyB.c_position.c;
-        let aB = this.m_bodyB.c_position.a;
+        const cA = this.m_bodyA.c_pos;
+        let aA = this.m_bodyA.c_a;
+        const cB = this.m_bodyB.c_pos;
+        let aB = this.m_bodyB.c_a;
 
         const qA = Rot.forAngle(aA), qB = Rot.forAngle(aB);
 
@@ -356,9 +356,9 @@ export class PulleyJoint extends Joint {
         aB += this.m_invIB * Vec2.cross(rB, PB);
 
         // this.m_bodyA.c_position.c = cA;
-        this.m_bodyA.c_position.a = aA;
+        this.m_bodyA.c_a = aA;
         // this.m_bodyB.c_position.c = cB;
-        this.m_bodyB.c_position.a = aB;
+        this.m_bodyB.c_a = aB;
 
         return linearError < Settings.linearSlop;
     }

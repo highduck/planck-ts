@@ -187,15 +187,15 @@ export class MotorJoint extends Joint {
         this.m_invIA = this.m_bodyA.m_invI;
         this.m_invIB = this.m_bodyB.m_invI;
 
-        const cA = this.m_bodyA.c_position.c;
-        const aA = this.m_bodyA.c_position.a;
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
+        const cA = this.m_bodyA.c_pos;
+        const aA = this.m_bodyA.c_a;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
 
-        const cB = this.m_bodyB.c_position.c;
-        const aB = this.m_bodyB.c_position.a;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
+        const cB = this.m_bodyB.c_pos;
+        const aB = this.m_bodyB.c_a;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         const qA = Rot.forAngle(aA), qB = Rot.forAngle(aB);
 
@@ -257,16 +257,16 @@ export class MotorJoint extends Joint {
         }
 
         // this.m_bodyA.c_velocity.v = vA;
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         // this.m_bodyB.c_velocity.v = vB;
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solveVelocityConstraints(step: TimeStep) {
-        const vA = this.m_bodyA.c_velocity.v;
-        let wA = this.m_bodyA.c_velocity.w;
-        const vB = this.m_bodyB.c_velocity.v;
-        let wB = this.m_bodyB.c_velocity.w;
+        const vA = this.m_bodyA.c_vel;
+        let wA = this.m_bodyA.c_w;
+        const vB = this.m_bodyB.c_vel;
+        let wB = this.m_bodyB.c_w;
 
         const mA = this.m_invMassA, mB = this.m_invMassB;
         const iA = this.m_invIA, iB = this.m_invIB;
@@ -314,9 +314,9 @@ export class MotorJoint extends Joint {
         }
 
         //this.m_bodyA.c_velocity.v.copyFrom(vA);
-        this.m_bodyA.c_velocity.w = wA;
+        this.m_bodyA.c_w = wA;
         //this.m_bodyB.c_velocity.v.copyFrom(vB);
-        this.m_bodyB.c_velocity.w = wB;
+        this.m_bodyB.c_w = wB;
     }
 
     solvePositionConstraints(step: TimeStep) {

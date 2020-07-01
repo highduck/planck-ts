@@ -240,9 +240,10 @@ export class ChainShape extends Shape {
 
     computeDistanceProxy(proxy: DistanceProxy, childIndex: number) {
         PLANCK_ASSERT && assert(0 <= childIndex && childIndex < this.m_count);
-        proxy.m_buffer[0] = this.getVertex(childIndex);
-        proxy.m_buffer[1] = this.getVertex(childIndex + 1);
-        proxy.m_vertices = proxy.m_buffer;
+        // proxy.m_buffer[0] = this.getVertex(childIndex);
+        // proxy.m_buffer[1] = this.getVertex(childIndex + 1);
+        proxy.m_vertices[0] = this.getVertex(childIndex);
+        proxy.m_vertices[1] = this.getVertex(childIndex + 1);
         proxy.m_count = 2;
         proxy.m_radius = this.m_radius;
     }
