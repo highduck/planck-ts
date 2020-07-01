@@ -52,7 +52,7 @@ export class DistanceOutput {
  * A distance proxy is used by the GJK algorithm. It encapsulates any shape.
  */
 export class DistanceProxy {
-    m_vertices: Vec2[] = [];
+    readonly m_vertices: Vec2[] = [];
     m_count = 0;
     m_radius = 0;
 

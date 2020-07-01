@@ -432,7 +432,14 @@ export class PolygonShape extends Shape {
     }
 
     computeDistanceProxy(proxy: DistanceProxy, childIndex: number) {
-        proxy.m_vertices = this.m_vertices;
+        // fill proxy vertices
+        const count = this.m_count;
+        const src = this.m_vertices;
+        const dest = proxy.m_vertices;
+        for (let i = 0; i < count; ++i) {
+            dest[i] = src[i];
+        }
+        // proxy.m_vertices = this.m_vertices;
         proxy.m_count = this.m_count;
         proxy.m_radius = this.m_radius;
     }
